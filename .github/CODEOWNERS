@@ -1,0 +1,8 @@
+# Marcos e Moosy são o únicos que podem administrar esse codespace
+
+/CODEOWNERS @Moosy-Joao @ChancellorMarko
+/.github/pull_request_template.md @Moosy-Joao @ChancellorMarko
+/CONTRIBUTING.md @Moosy-Joao @ChancellorMarko
+/LICENSE @Moosy-Joao @ChancellorMarko
+/README.md @Moosy-Joao @ChancellorMarko
+/validate-commits.yml @Moosy-Joao @ChancellorMarko
