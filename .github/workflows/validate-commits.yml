@@ -21,7 +21,7 @@ jobs:
       - name: Validate commit messages
         id: validate
         run: |
-          PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert|Merge)(\\(.+\\))?:?.{0,100}$"
+          PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert|Merge|structure)(\\(.+\\))?:?.{0,100}$"
           while IFS= read -r line; do
             if ! [[ $line =~ $PATTERN ]]; then
               echo "❌ Commit inválido: '$line'"
