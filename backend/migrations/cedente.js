@@ -1,6 +1,6 @@
 'use strict';
 
-Modulo.exports = {
+Module.exports = {
 
     async up(queryInterface, Sequelize){
         await queryInterface.createTable( 'cedentes',{

@@ -1,6 +1,6 @@
 'use strict';
 
-MediaSourceHandle.exports = {
+Module.exports = {
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable('contas', {
             id: {
