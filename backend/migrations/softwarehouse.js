@@ -66,17 +66,29 @@ module.exports = {
       }
     });
 
-    // Adiciona índices para melhor performance
-    await queryInterface.addIndex('software_houses', ['cnpj']);
-    await queryInterface.addIndex('software_houses', ['email']);
-    await queryInterface.addIndex('software_houses', ['token_sh']);
-    await queryInterface.addIndex('software_houses', ['ativo']);
+    // Índices com nomes explícitos para evitar conflito
+    await queryInterface.addIndex('software_houses', ['cnpj'], {
+      name: 'idx_software_houses_cnpj'
+    });
+    await queryInterface.addIndex('software_houses', ['email'], {
+      name: 'idx_software_houses_email'
+    });
+    await queryInterface.addIndex('software_houses', ['token_sh'], {
+      name: 'idx_software_houses_token_sh'
+    });
+    await queryInterface.addIndex('software_houses', ['ativo'], {
+      name: 'idx_software_houses_ativo'
+    });
   },
 
   down: async (queryInterface, Sequelize) => {
+    // Primeiro remove os índices nomeados
+    await queryInterface.removeIndex('software_houses', 'idx_software_houses_cnpj');
+    await queryInterface.removeIndex('software_houses', 'idx_software_houses_email');
+    await queryInterface.removeIndex('software_houses', 'idx_software_houses_token_sh');
+    await queryInterface.removeIndex('software_houses', 'idx_software_houses_ativo');
+
+    // Depois dropa a tabela
     await queryInterface.dropTable('software_houses');
   }
 };
-
-
-
