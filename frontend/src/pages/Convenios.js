@@ -1,12 +1,16 @@
-import React from "react";
-import "../styles/Convenios.css";
+import React, { useState, useEffect } from "react";
+import api from "../services/api";  
+import "../styles/Convenios.css";  
+import { getConvenios } from "../services/conveniosService"; 
 
 function Convenios() {
-  // Mock (vai virar dados da API depois)
-  const convenios = [
-    { id: 1, nome: "Convênio Saúde", criadoEm: "2024-08-10" },
-    { id: 2, nome: "Convênio Empresa X", criadoEm: "2024-09-01" },
-  ];
+  const [convenios, setConvenios] = useState([]); 
+
+  useEffect(() => {
+    api.get('/convenios')  
+      .then(response => setConvenios(response.data))  
+      .catch(error => console.log(error));  
+  }, []);  
 
   return (
     <div className="convenios-container">
