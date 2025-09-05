@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import api from "../services/api";  // Importando a instância de API
-import "../styles/Convenios.css";  // Estilos
+import api from "../services/api";  
+import "../styles/Convenios.css";  
 import { getConvenios } from "../services/conveniosService"; 
 
 function Convenios() {
-  const [convenios, setConvenios] = useState([]); // Armazena os dados
+  const [convenios, setConvenios] = useState([]); 
 
   useEffect(() => {
-    api.get('/convenios')  // Chama a API para buscar os dados reais
-      .then(response => setConvenios(response.data))  // Atualiza com os dados reais
-      .catch(error => console.log(error));  // Exibe erro caso haja algum problema
-  }, []);  // A chamada vai acontecer uma vez quando o componente for carregado
+    api.get('/convenios')  
+      .then(response => setConvenios(response.data))  
+      .catch(error => console.log(error));  
+  }, []);  
 
   return (
     <div className="convenios-container">
