@@ -1,12 +1,17 @@
-import React from "react";
-import "../styles/Cedentes.css";
+import React, { useState, useEffect } from "react"; // Adiciona os imports necessários
+import "../styles/Cedentes.css"; 
+import api from "../services/api";
+import { getCedentes } from "../services/cedentesService"; 
 
 function Cedentes() {
-  // Mock (depois troca por dados reais da API)
-  const cedentes = [
-    { id: 1, nome: "Empresa XPTO", email: "contato@xpto.com" },
-    { id: 2, nome: "Tech Ltda", email: "suporte@tech.com" },
-  ];
+  const [cedentes, setCedentes] = useState([]); // Estado para armazenar os dados
+
+  useEffect(() => {
+    // Chama a API para pegar os dados reais
+    api.get('/cedentes') // Chama o endpoint que você configurou
+      .then(response => setCedentes(response.data))  // Atualiza o estado com os dados reais
+      .catch(error => console.log(error));  // Em caso de erro, exibe no console
+  }, []); // O array vazio [] garante que a chamada à API aconteça apenas uma vez quando o componente carregar
 
   return (
     <div className="cedentes-container">
