@@ -41,7 +41,7 @@ function Navbar() {
           >
             Convênios
           </NavLink>
-        </li>+
+        </li>
         <li>
           <NavLink
             to="/protocolos"
