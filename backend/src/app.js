@@ -9,24 +9,25 @@ const { testConnection } = require('./config/database');
 const { connectRedis } = require('./config/redis');
 
 // Importações de middlewares
-const { 
-  validateRequiredHeaders, 
+const {
+  validateRequiredHeaders,
   validateOptionalHeaders,
-  validateCorrelationHeaders 
+  validateCorrelationHeaders
 } = require('./middlewares/validation');
 const { authenticateJWT, optionalAuth } = require('./middlewares/auth');
-const { 
-  errorHandler, 
-  jsonErrorHandler, 
-  timeoutErrorHandler, 
+const {
+  errorHandler,
+  jsonErrorHandler,
+  timeoutErrorHandler,
   connectionErrorHandler,
   notFoundHandler,
-  logger 
+  logger
 } = require('./middlewares/errorHandler');
 
 // Importações de rotas
 const webhookRoutes = require('./routes/webhook');
 const protocoloRoutes = require('./routes/protocolo');
+const loginRouter = require('./routes/login');
 
 // Criação da aplicação Express
 const app = express();
@@ -89,6 +90,8 @@ app.use((req, res, next) => {
 });
 
 // Rotas públicas (sem autenticação)
+app.use('/api/login', loginRouter);
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -132,7 +135,7 @@ process.on('uncaughtException', (error) => {
     stack: error.stack,
     timestamp: new Date().toISOString()
   });
-  
+
   // Em produção, pode ser necessário encerrar o processo
   if (process.env.NODE_ENV === 'production') {
     process.exit(1);
@@ -152,10 +155,10 @@ const initializeApp = async () => {
   try {
     // Testa conexão com o banco de dados
     await testConnection();
-    
+
     // Conecta ao Redis
     await connectRedis();
-    
+
     logger.info('Aplicação inicializada com sucesso');
   } catch (error) {
     logger.error('Erro ao inicializar aplicação:', error);
@@ -166,7 +169,7 @@ const initializeApp = async () => {
 // Função para encerrar a aplicação graciosamente
 const gracefulShutdown = async (signal) => {
   logger.info(`Recebido sinal ${signal}, encerrando aplicação...`);
-  
+
   try {
     // Aqui você pode adicionar lógica para encerrar conexões de banco, Redis, etc.
     process.exit(0);

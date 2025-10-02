@@ -1,22 +1,4 @@
-.login-register-link {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 15px;
-}
-
-.login-register-link a {
-    color: #0d6efd;
-    text-decoration: underline;
-    margin-left: 6px;
-    font-weight: 500;
-    cursor: pointer;
-}
-
-.login-register-link a:hover {
-    color: #0b5ed7;
-}
-
-.login-container {
+.cadastro-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -24,24 +6,19 @@
     background: #f8f9fa;
 }
 
-.login-card {
+.cadastro-card {
     background: #fff;
     padding: 36px 32px 32px 32px;
     border-radius: 10px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    max-width: 350px;
+    max-width: 370px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.login-logo {
-    width: 60px;
-    margin-bottom: 18px;
-}
-
-.login-title {
+.cadastro-title {
     color: #0d6efd;
     font-size: 22px;
     margin-bottom: 18px;
@@ -49,20 +26,20 @@
     text-align: center;
 }
 
-.login-form {
+.cadastro-form {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
 
-.login-form label {
+.cadastro-form label {
     font-size: 15px;
     color: #0d6efd;
     margin-bottom: 5px;
     font-weight: 500;
 }
 
-.login-form input {
+.cadastro-form input {
     margin-bottom: 16px;
     padding: 10px;
     border: 1px solid #dee2e6;
@@ -71,7 +48,7 @@
     background: #f8f9fa;
 }
 
-.login-form button {
+.cadastro-form button {
     padding: 10px;
     background: #0d6efd;
     color: #fff;
@@ -83,18 +60,43 @@
     transition: background 0.2s;
 }
 
-.login-form button:disabled {
+.cadastro-form button:disabled {
     background: #6c757d;
     cursor: not-allowed;
 }
 
-.login-form button:hover:not(:disabled) {
+.cadastro-form button:hover:not(:disabled) {
     background: #0b5ed7;
 }
 
-.login-error {
+.cadastro-error {
     color: #d32f2f;
     margin-bottom: 12px;
     text-align: center;
     font-size: 15px;
+}
+
+.cadastro-success {
+    color: #198754;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.cadastro-login-link {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.cadastro-login-link a {
+    color: #0d6efd;
+    text-decoration: underline;
+    margin-left: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.cadastro-login-link a:hover {
+    color: #0b5ed7;
 }

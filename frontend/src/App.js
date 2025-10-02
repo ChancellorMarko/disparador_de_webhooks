@@ -5,6 +5,7 @@ import Cedentes from "./pages/Cedentes";
 import Convenios from "./pages/Convenios";
 import Protocolos from "./pages/Protocolos";
 import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/convenios" element={<Convenios />} />
         <Route path="/protocolos" element={<Protocolos />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
       </Routes>
     </div>
   );
