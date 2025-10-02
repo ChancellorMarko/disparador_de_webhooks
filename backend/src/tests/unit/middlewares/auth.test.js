@@ -1,233 +1,249 @@
-const AuthenticationService = require('../services/AuthenticationService.test');
+const { authenticateJWT, optionalAuth, requireUserType, requireOwnership } = require("../../../src/middlewares/auth")
+const AuthenticationService = require("../../../src/services/AuthenticationService")
+const jest = require("jest")
 
-/**
- * Middleware de autenticação JWT
- * Verifica se o token JWT é válido e extrai as informações do usuário
- */
-const authenticateJWT = async (req, res, next) => {
-  try {
-    // Obtém o token do header Authorization
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        error: 'Token de autenticação não fornecido',
-        code: 'MISSING_TOKEN'
-      });
+jest.mock("../../../src/services/AuthenticationService")
+
+describe("Auth Middleware", () => {
+  let req, res, next
+
+  beforeEach(() => {
+    req = {
+      headers: {},
+      params: {},
+      user: null,
+      decodedToken: null,
     }
-
-    // Verifica se o header está no formato correto: "Bearer <token>"
-    const parts = authHeader.split(' ');
-    
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      return res.status(401).json({
-        success: false,
-        error: 'Formato de token inválido. Use: Bearer <token>',
-        code: 'INVALID_TOKEN_FORMAT'
-      });
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     }
+    next = jest.fn()
+    jest.clearAllMocks()
+  })
 
-    const token = parts[1];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: 'Token não fornecido',
-        code: 'EMPTY_TOKEN'
-      });
-    }
-
-    try {
-      // Verifica e decodifica o token JWT
-      const decoded = AuthenticationService.verifyToken(token);
-      
-      // Verifica se o token é do tipo correto
-      if (decoded.type !== 'software_house') {
-        return res.status(401).json({
-          success: false,
-          error: 'Tipo de token inválido',
-          code: 'INVALID_TOKEN_TYPE'
-        });
+  describe("authenticateJWT", () => {
+    it("should authenticate with valid token", async () => {
+      const token = "valid_token"
+      const decoded = {
+        id: 1,
+        cnpj: "12.345.678/0001-90",
+        token_sh: "test_token",
+        type: "software_house",
       }
 
-      // Adiciona as informações do usuário autenticado ao request
-      req.user = {
+      req.headers.authorization = `Bearer ${token}`
+      AuthenticationService.verifyToken.mockReturnValue(decoded)
+
+      await authenticateJWT(req, res, next)
+
+      expect(req.user).toEqual({
         id: decoded.id,
         cnpj: decoded.cnpj,
         token_sh: decoded.token_sh,
-        type: decoded.type
-      };
+        type: decoded.type,
+      })
+      expect(next).toHaveBeenCalled()
+    })
 
-      // Adiciona o token decodificado para uso posterior
-      req.decodedToken = decoded;
+    it("should return 401 when no authorization header", async () => {
+      await authenticateJWT(req, res, next)
 
-      next();
-    } catch (jwtError) {
-      if (jwtError.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          error: 'Token expirado',
-          code: 'TOKEN_EXPIRED'
-        });
-      } else if (jwtError.name === 'JsonWebTokenError') {
-        return res.status(401).json({
-          success: false,
-          error: 'Token inválido',
-          code: 'INVALID_TOKEN'
-        });
-      } else {
-        return res.status(401).json({
-          success: false,
-          error: 'Erro na validação do token',
-          code: 'TOKEN_VALIDATION_ERROR'
-        });
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        error: "Token de autenticação não fornecido",
+        code: "MISSING_TOKEN",
+      })
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it("should return 401 when token format is invalid", async () => {
+      req.headers.authorization = "InvalidFormat token"
+
+      await authenticateJWT(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        error: "Formato de token inválido. Use: Bearer <token>",
+        code: "INVALID_TOKEN_FORMAT",
+      })
+    })
+
+    it("should return 401 when token is expired", async () => {
+      req.headers.authorization = "Bearer expired_token"
+      const error = new Error("Token expired")
+      error.name = "TokenExpiredError"
+      AuthenticationService.verifyToken.mockImplementation(() => {
+        throw error
+      })
+
+      await authenticateJWT(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        error: "Token expirado",
+        code: "TOKEN_EXPIRED",
+      })
+    })
+
+    it("should return 401 when token type is invalid", async () => {
+      req.headers.authorization = "Bearer valid_token"
+      AuthenticationService.verifyToken.mockReturnValue({
+        id: 1,
+        type: "invalid_type",
+      })
+
+      await authenticateJWT(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        error: "Tipo de token inválido",
+        code: "INVALID_TOKEN_TYPE",
+      })
+    })
+  })
+
+  describe("optionalAuth", () => {
+    it("should authenticate with valid token", async () => {
+      const token = "valid_token"
+      const decoded = {
+        id: 1,
+        cnpj: "12.345.678/0001-90",
+        token_sh: "test_token",
+        type: "software_house",
       }
-    }
-  } catch (error) {
-    console.error('Erro no middleware de autenticação:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro interno na autenticação',
-      code: 'AUTHENTICATION_ERROR'
-    });
-  }
-};
 
-/**
- * Middleware de autenticação opcional
- * Similar ao authenticateJWT, mas não falha se não houver token
- * Útil para rotas que podem ser acessadas com ou sem autenticação
- */
-const optionalAuth = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
-      // Se não há header de autorização, continua sem autenticação
-      req.user = null;
-      req.decodedToken = null;
-      return next();
-    }
+      req.headers.authorization = `Bearer ${token}`
+      AuthenticationService.verifyToken.mockReturnValue(decoded)
 
-    const parts = authHeader.split(' ');
-    
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      // Se o formato está incorreto, continua sem autenticação
-      req.user = null;
-      req.decodedToken = null;
-      return next();
-    }
+      await optionalAuth(req, res, next)
 
-    const token = parts[1];
+      expect(req.user).toEqual({
+        id: decoded.id,
+        cnpj: decoded.cnpj,
+        token_sh: decoded.token_sh,
+        type: decoded.type,
+      })
+      expect(next).toHaveBeenCalled()
+    })
 
-    if (!token) {
-      // Se não há token, continua sem autenticação
-      req.user = null;
-      req.decodedToken = null;
-      return next();
-    }
+    it("should continue without authentication when no token", async () => {
+      await optionalAuth(req, res, next)
 
-    try {
-      const decoded = AuthenticationService.verifyToken(token);
-      
-      if (decoded.type === 'software_house') {
-        req.user = {
-          id: decoded.id,
-          cnpj: decoded.cnpj,
-          token_sh: decoded.token_sh,
-          type: decoded.type
-        };
-        req.decodedToken = decoded;
-      } else {
-        req.user = null;
-        req.decodedToken = null;
-      }
-    } catch (jwtError) {
-      // Se há erro na validação, continua sem autenticação
-      req.user = null;
-      req.decodedToken = null;
-    }
+      expect(req.user).toBeNull()
+      expect(req.decodedToken).toBeNull()
+      expect(next).toHaveBeenCalled()
+    })
 
-    next();
-  } catch (error) {
-    console.error('Erro no middleware de autenticação opcional:', error);
-    req.user = null;
-    req.decodedToken = null;
-    next();
-  }
-};
+    it("should continue without authentication when token is invalid", async () => {
+      req.headers.authorization = "Bearer invalid_token"
+      AuthenticationService.verifyToken.mockImplementation(() => {
+        throw new Error("Invalid token")
+      })
 
-/**
- * Middleware para verificar se o usuário tem permissão específica
- * @param {string} requiredType - Tipo de usuário requerido
- */
-const requireUserType = (requiredType) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
+      await optionalAuth(req, res, next)
+
+      expect(req.user).toBeNull()
+      expect(req.decodedToken).toBeNull()
+      expect(next).toHaveBeenCalled()
+    })
+  })
+
+  describe("requireUserType", () => {
+    it("should allow access when user type matches", () => {
+      req.user = { id: 1, type: "software_house" }
+      const middleware = requireUserType("software_house")
+
+      middleware(req, res, next)
+
+      expect(next).toHaveBeenCalled()
+    })
+
+    it("should return 401 when user is not authenticated", () => {
+      const middleware = requireUserType("software_house")
+
+      middleware(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Autenticação necessária',
-        code: 'AUTHENTICATION_REQUIRED'
-      });
-    }
+        error: "Autenticação necessária",
+        code: "AUTHENTICATION_REQUIRED",
+      })
+    })
 
-    if (req.user.type !== requiredType) {
-      return res.status(403).json({
+    it("should return 403 when user type does not match", () => {
+      req.user = { id: 1, type: "admin" }
+      const middleware = requireUserType("software_house")
+
+      middleware(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Permissão insuficiente para esta operação',
-        code: 'INSUFFICIENT_PERMISSIONS'
-      });
-    }
+        error: "Permissão insuficiente para esta operação",
+        code: "INSUFFICIENT_PERMISSIONS",
+      })
+    })
+  })
 
-    next();
-  };
-};
+  describe("requireOwnership", () => {
+    it("should allow access when user owns the resource", () => {
+      req.user = { id: 1 }
+      req.params = { id: "1" }
+      const middleware = requireOwnership("id")
 
-/**
- * Middleware para verificar se o usuário é o proprietário do recurso
- * @param {string} resourceIdParam - Nome do parâmetro que contém o ID do recurso
- */
-const requireOwnership = (resourceIdParam = 'id') => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
+      middleware(req, res, next)
+
+      expect(next).toHaveBeenCalled()
+    })
+
+    it("should return 401 when user is not authenticated", () => {
+      req.params = { id: "1" }
+      const middleware = requireOwnership("id")
+
+      middleware(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Autenticação necessária',
-        code: 'AUTHENTICATION_REQUIRED'
-      });
-    }
+        error: "Autenticação necessária",
+        code: "AUTHENTICATION_REQUIRED",
+      })
+    })
 
-    const resourceId = req.params[resourceIdParam];
-    
-    if (!resourceId) {
-      return res.status(400).json({
+    it("should return 403 when user does not own the resource", () => {
+      req.user = { id: 1 }
+      req.params = { id: "2" }
+      const middleware = requireOwnership("id")
+
+      middleware(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'ID do recurso não fornecido',
-        code: 'MISSING_RESOURCE_ID'
-      });
-    }
+        error: "Acesso negado: você não é o proprietário deste recurso",
+        code: "ACCESS_DENIED",
+      })
+    })
 
-    // Verifica se o usuário é o proprietário do recurso
-    // Esta lógica pode ser personalizada conforme necessário
-    if (req.user.id.toString() !== resourceId.toString()) {
-      return res.status(403).json({
+    it("should return 400 when resource ID is missing", () => {
+      req.user = { id: 1 }
+      req.params = {}
+      const middleware = requireOwnership("id")
+
+      middleware(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Acesso negado: você não é o proprietário deste recurso',
-        code: 'ACCESS_DENIED'
-      });
-    }
-
-    next();
-  };
-};
-
-module.exports = {
-  authenticateJWT,
-  optionalAuth,
-  requireUserType,
-  requireOwnership
-};
-
-
-
+        error: "ID do recurso não fornecido",
+        code: "MISSING_RESOURCE_ID",
+      })
+    })
+  })
+})
