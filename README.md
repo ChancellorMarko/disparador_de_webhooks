@@ -55,6 +55,8 @@ npx sequelize-cli db:seed:all
 ▶️ Rodando a aplicação
 npm run dev
 
+Para criar as tabelas na Database
+npx sequelize-cli db:migrate
 
 A aplicação estará disponível em:
 
