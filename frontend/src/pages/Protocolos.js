@@ -1,12 +1,15 @@
-import React from "react";
-import "../styles/Protocolos.css";
+import React, { useState, useEffect } from "react";
+import api from "../services/api";  
+import "../styles/Protocolos.css";  
+import { getProtocolos } from "../services/protocolosService"; 
 
 function Protocolos() {
-  // Mock (depois vira dados reais da API)
-  const protocolos = [
-    { id: 1, uuid: "123e4567-e89b-12d3-a456-426614174000", status: "Sucesso", criadoEm: "2024-08-20" },
-    { id: 2, uuid: "223e4567-e89b-12d3-a456-426614174001", status: "Erro", criadoEm: "2024-08-25" },
-  ];
+  const [protocolos, setProtocolos] = useState([]); 
+  useEffect(() => {
+    api.get('/protocolos') 
+      .then(response => setProtocolos(response.data))  
+      .catch(error => console.log(error));  
+  }, []);  
 
   return (
     <div className="protocolos-container">
