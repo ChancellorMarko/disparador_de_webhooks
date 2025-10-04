@@ -1,31 +1,27 @@
-const express = require("express")
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 
-// Importar todas as rotas
-const authRoutes = require("./authRoutes")
-const cedenteRoutes = require("./cedenteRoutes")
-const contaRoutes = require("./contaRoutes")
-const convenioRoutes = require("./convenioRoutes")
-const servicoRoutes = require("./servicoRoutes")
-const protocoloRoutes = require("./protocoloRoutes")
-const webhookRoutes = require("./webhookRoutes")
+// Importar todas as suas rotas de negócio
+const cedenteRoutes = require("./cedenteRoutes");
+const contaRoutes = require("./contaRoutes");
+const convenioRoutes = require("./convenioRoutes");
+const servicoRoutes = require("./servicoRoutes");
+const protocoloRoutes = require("./protocoloRoutes");
+const webhookRoutes = require("./webhookRoutes");
+const reenvioRoutes = require("./reenvioRoutes");
+// Se você mantiver o login com JWT para um painel, descomente a linha abaixo
+// const authRoutes = require("./authRoutes");
 
-// Registrar rotas
-router.use("/auth", authRoutes)
-router.use("/cedentes", cedenteRoutes)
-router.use("/contas", contaRoutes)
-router.use("/convenios", convenioRoutes)
-router.use("/servicos", servicoRoutes)
-router.use("/protocolos", protocoloRoutes)
-router.use("/webhooks", webhookRoutes)
+// Registrar as rotas nos seus respectivos endpoints
+// Ex: /api/cedentes, /api/contas, etc.
+router.use("/cedentes", cedenteRoutes);
+router.use("/contas", contaRoutes);
+router.use("/convenios", convenioRoutes);
+router.use("/servicos", servicoRoutes);
+router.use("/protocolos", protocoloRoutes); // Corrigido para /protocolos
+router.use("/webhooks", webhookRoutes);     // Corrigido para /webhooks
+router.use("/reenviar", reenvioRoutes);
+// Se mantiver o login, descomente a linha abaixo
+// router.use("/auth", authRoutes);
 
-// Rota de health check
-router.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "API está funcionando",
-    timestamp: new Date().toISOString(),
-  })
-})
-
-module.exports = router
+module.exports = router;
