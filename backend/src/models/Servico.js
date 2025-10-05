@@ -1,45 +1,51 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const Servico = sequelize.define('Servico', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: sequelize.literal('gen_random_uuid()'),
-      primaryKey: true,
-      allowNull: false
-    },
-    data_criacao: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('NOW()')
-    },
-    convenio_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Convenio',
-        key: 'id'
-      }
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  }, {
-    tableName: 'servicos',
-    underscored: true,
-    timestamps: false
-  });
+const { DataTypes } = require("sequelize")
 
-  Servico.associate = function(models) {
+module.exports = (sequelize) => {
+  const Servico = sequelize.define(
+    "Servico",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      data_criacao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      convenio_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "convenios",
+          key: "id",
+        },
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isIn: [["ativo", "inativo"]],
+        },
+      },
+    },
+    {
+      tableName: "servicos",
+      underscored: true,
+      timestamps: false,
+    },
+  )
+
+  Servico.associate = (models) => {
     Servico.belongsTo(models.Convenio, {
-      foreignKey: 'convenio_id',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE'
-    });
-  };
+      foreignKey: "convenio_id",
+      as: "convenio",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    })
+  }
 
-  return Servico;
-};
-
-
-
+  return Servico
+}
