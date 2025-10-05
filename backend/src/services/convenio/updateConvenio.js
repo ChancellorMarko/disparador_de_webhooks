@@ -1,14 +1,31 @@
-class updateConvenioSerbice{
-    async execute(id, numero_convenio, conta_id) {
-        const Convenio = await Convenio.findById(id);
-        if (!Convenio) {
-            throw new Error("Convênio não encontrado");
-        }
-        const jaExisteConvenio = await Convenio.findOne({ where: { numero_convenio } });
-        if (jaExisteConvenio) {
-            throw new Error("Número do convênio já cadastrado");
-        }
-        await Convenio.update(id, { numero_convenio, conta_id });
-        
+const ConvenioRepository = require("../repositories/ConvenioRepository");
+// Assumindo que o findConvenio.js está na mesma pasta
+const findConvenio = require("./findConvenio");
+
+class updateConvenio {
+  /**
+   * Atualiza um Convênio
+   */
+  async execute(id, data) {
+    const convenio = await findConvenio.byId(id);
+
+    delete data.conta_id;
+
+    if (
+      data.numero_convenio &&
+      data.numero_convenio !== convenio.numero_convenio
+    ) {
+      const convenioExists = await ConvenioRepository.existsByNumero(
+        data.numero_convenio,
+        id
+      );
+      if (convenioExists) {
+        throw new Error("Número de convênio já cadastrado");
+      }
     }
+
+    return await ConvenioRepository.update(id, data);
+  }
 }
+
+module.exports = new updateConvenio();
