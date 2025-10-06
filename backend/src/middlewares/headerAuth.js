@@ -1,4 +1,4 @@
-const { SoftwareHouse, Cedente } = require("../models"); // Ajuste o caminho se necessário
+const { SoftwareHouse, Cedente } = require("./models"); 
 const AppError = require("../utils/AppError"); // Supondo uma classe de erro
 
 const headerAuth = async (req, res, next) => {
