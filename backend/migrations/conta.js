@@ -3,38 +3,56 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('cedentes', {
+    await queryInterface.createTable("contas", {
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
-        defaultValue: Sequelize.literal('gen_random_uuid()')
+        autoIncrement: true,
       },
-      nome: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email: {
+      // REMOVIDO: Campo 'data_criacao' redundante.
+      produto: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+      },
+      banco_codigo: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      cedente_id: {
+        type: Sequelize.INTEGER,
+        // AJUSTADO: Chaves estrangeiras não devem ser nulas.
+        allowNull: false,
+        references: {
+          model: "cedentes",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      configuracao_notificacao: {
+        type: Sequelize.JSONB,
+        allowNull: true,
       },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
-      }
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      },
     });
+    // Índices continuam os mesmos
+    await queryInterface.addIndex("contas", ["cedente_id"]);
   },
-
-
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('cedentes');
-  }
+    await queryInterface.dropTable("contas");
+  },
 };
-

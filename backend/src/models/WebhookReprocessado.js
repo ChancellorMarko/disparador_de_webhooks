@@ -1,61 +1,73 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const WebhookReprocessado = sequelize.define('WebhookReprocessado', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: sequelize.literal('gen_random_uuid()'),
-      primaryKey: true,
-      allowNull: false
-    },
-    data: {
-      type: DataTypes.JSONB, // PostgreSQL
-      allowNull: false
-    },
-    data_criacao: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('NOW()')
-    },
-    cedente_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Cedente',
-        key: 'id'
-      }
-    },
-    kind: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    servico_id: {
-      type: DataTypes.TEXT, // armazenando array de IDs como JSON.stringify()
-      allowNull: false
-    },
-    protocolo: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
-  }, {
-    tableName: 'webhook_reprocessados',
-    underscored: true,
-    timestamps: false
-  });
+const { DataTypes } = require("sequelize")
 
-  WebhookReprocessado.associate = function(models) {
+module.exports = (sequelize) => {
+  const WebhookReprocessado = sequelize.define(
+    "WebhookReprocessado",
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+      },
+      data: {
+        type: DataTypes.JSONB, // PostgreSQL
+        allowNull: false,
+        comment: "Dados originais da requisição de reenvio (JSON completo)",
+      },
+      data_criacao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      cedente_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "cedentes",
+          key: "id",
+        },
+      },
+      kind: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isIn: [["webhook", "evento", "agendamento"]],
+        },
+      },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isIn: [["disponivel", "cancelado", "pago"]],
+        },
+      },
+      servico_id: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        comment: "Array de IDs dos serviços armazenado como JSON.stringify()",
+      },
+      protocolo: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+    },
+    {
+      tableName: "webhook_reprocessados",
+      underscored: true,
+      timestamps: false,
+    },
+  )
+
+  WebhookReprocessado.associate = (models) => {
     WebhookReprocessado.belongsTo(models.Cedente, {
-      foreignKey: 'cedente_id',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE'
-    });
-  };
+      foreignKey: "cedente_id",
+      as: "cedente",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    })
+  }
 
-  return WebhookReprocessado;
-};
-
-
-
+  return WebhookReprocessado
+}

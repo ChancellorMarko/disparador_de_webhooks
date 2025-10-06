@@ -1,42 +1,55 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const Convenio = sequelize.define('Convenio', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: sequelize.literal('gen_random_uuid()'),
-      allowNull: false
-    },
-    nome: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('NOW()'),
-      allowNull: false
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('NOW()'),
-      allowNull: false
-    }
-  }, {
-    tableName: 'convenios',
-    underscored: true,
-    timestamps: false
-  });
+const { DataTypes } = require("sequelize")
 
-  Convenio.associate = function(models) {
+module.exports = (sequelize) => {
+  const Convenio = sequelize.define(
+    "Convenio",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      numero_convenio: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      data_criacao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      conta_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "contas",
+          key: "id",
+        },
+      },
+    },
+    {
+      tableName: "convenios",
+      underscored: true,
+      timestamps: false,
+    },
+  )
+
+  Convenio.associate = (models) => {
+    Convenio.belongsTo(models.Conta, {
+      foreignKey: "conta_id",
+      as: "conta",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    })
+
     Convenio.hasMany(models.Servico, {
-      foreignKey: 'convenio_id',
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE'
-    });
-  };
+      foreignKey: "convenio_id",
+      as: "servicos",
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    })
+  }
 
-  return Convenio;
-};
-
-
-
+  return Convenio
+}
