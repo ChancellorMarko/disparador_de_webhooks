@@ -1,25 +1,27 @@
 'use strict';
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    const hashedPassword = await bcrypt.hash('senha123', 12);
-    
+  async up(queryInterface, Sequelize) {
+    const hashedPassword = await bcrypt.hash('senha123', 10);
+
     return queryInterface.bulkInsert('software_houses', [{
-      cnpj: '12.345.678/0001-90',
-      razao_social: 'Software House Demo Ltda',
-      nome_fantasia: 'Demo SH',
-      email: 'demo@softwarehouse.com',
+      cnpj: '11222333000144',
+      razao_social: 'Software House de Teste LTDA',
+      nome_fantasia: 'SH Teste',
+      email: 'contato@shteste.com',
       senha: hashedPassword,
-      token_sh: 'demo123456789012345678901234567890',
-      ativo: true,
-      tentativas_login: 0,
+     
+      token: uuidv4().replace(/-/g, ""),
+      
+      status: 'ativo',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     }], {});
   },
 
-  down: async (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('software_houses', { cnpj: '12.345.678/0001-90' }, {});
+  async down(queryInterface, Sequelize) {
+    return queryInterface.bulkDelete('software_houses', null, {});
   }
 };

@@ -1,29 +1,13 @@
-const express = require("express")
-const router = express.Router()
-const ReenvioService = require("../services/ReenvioService")
-const { headerAuth } = require("../middlewares/headerAuth")
-const { validateReenvio } = require("../validators/reenvioValidator")
+const express = require("express");
+const router = express.Router();
 
-/**
- * @route POST /api/reenviar
- * @desc Cria uma nova solicitação de reenvio de webhook
- * @access Private
- */
-router.post("/", headerAuth, validateReenvio, async (req, res, next) => {
-  try {
-    const reenvioData = req.body
-    const authData = req.auth // Dados injetados pelo middleware headerAuth
+const ReenvioController = require("../controllers/ReenvioController");
+const { validateReenvio } = require("../validators/ReenvioValidator");
 
-    const result = await ReenvioService.criarReenvio(reenvioData, authData)
+// A autenticação (headerAuth) já é aplicada a esta rota no app.js,
+// então não precisamos adicioná-la aqui.
 
-    res.status(201).json({
-      success: true,
-      data: result,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    next(error)
-  }
-})
+// A rota passa primeiro pelo validador do Joi e depois chama o método 'create' do controller.
+router.post("/", validateReenvio, ReenvioController.create);
 
-module.exports = router
+module.exports = router;

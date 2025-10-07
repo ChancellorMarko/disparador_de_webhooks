@@ -1,16 +1,14 @@
-const express = require("express");
-const router = express.Router();
-const CedenteController = require("../controllers/CedenteController");
-const { headerAuth } = require("../middlewares/headerAuth");
+const express = require("express")
+const router = express.Router()
+const CedenteController = require("../controllers/CedenteController")
 
-// Aplica o middleware de autenticação a todas as rotas deste arquivo
-router.use(headerAuth);
+// The authenticateJWT middleware is already applied at the app level in app.js
+// when registering this route: app.use("/api/cedentes", authenticateJWT, cedenteRoutes)
 
-// Define qual método do controller cuidará de cada endpoint
-router.post("/", CedenteController.create);
-router.get("/", CedenteController.findAll);
-router.get("/:id", CedenteController.findById);
-router.put("/:id", CedenteController.update);
-router.delete("/:id", CedenteController.delete);
+router.post("/", CedenteController.create)
+router.get("/", CedenteController.findAll)
+router.get("/:id", CedenteController.findById)
+router.put("/:id", CedenteController.update)
+router.delete("/:id", CedenteController.delete)
 
-module.exports = router;
+module.exports = router

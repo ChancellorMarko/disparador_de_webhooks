@@ -1,8 +1,6 @@
 'use strict';
-
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable("software_houses", {
       id: {
         allowNull: false,
@@ -10,11 +8,27 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      // REMOVIDO: Campo 'data_criacao' redundante. 'created_at' já cumpre este papel.
       cnpj: {
         type: Sequelize.STRING(14),
         allowNull: false,
         unique: true,
+      },
+      razao_social: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      nome_fantasia: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      senha: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       token: {
         type: Sequelize.STRING,
@@ -24,24 +38,20 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: 'ativo',
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
-    // Índices continuam os mesmos
-    await queryInterface.addIndex("software_houses", ["cnpj"]);
-    await queryInterface.addIndex("software_houses", ["token"]);
   },
-
-  down: async (queryInterface, Sequelize) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("software_houses");
   },
 };
+

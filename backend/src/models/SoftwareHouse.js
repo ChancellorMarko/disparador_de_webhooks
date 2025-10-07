@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize")
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const SoftwareHouse = sequelize.define(
@@ -10,19 +10,29 @@ module.exports = (sequelize) => {
         autoIncrement: true,
         allowNull: false,
       },
-      data_criacao: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
       cnpj: {
         type: DataTypes.STRING(14),
         allowNull: false,
         unique: true,
-        validate: {
-          len: [14, 14],
-          isNumeric: true,
-        },
+        validate: { len: [14, 14], isNumeric: true },
+      },
+      razao_social: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      nome_fantasia: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
+      },
+      senha: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       token: {
         type: DataTypes.STRING,
@@ -33,26 +43,23 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: "ativo",
-        validate: {
-          isIn: [["ativo", "inativo"]],
-        },
+        validate: { isIn: [["ativo", "inativo", "bloqueado"]] },
       },
     },
     {
       tableName: "software_houses",
       underscored: true,
-      timestamps: false,
-    },
-  )
+      // AVISO: Removido qualquer defaultScope que pudesse estar aqui
+      timestamps: true, // Garante que o Sequelize gerencie created_at e updated_at
+    }
+  );
 
   SoftwareHouse.associate = (models) => {
     SoftwareHouse.hasMany(models.Cedente, {
       foreignKey: "softwarehouse_id",
       as: "cedentes",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
-    })
-  }
+    });
+  };
 
-  return SoftwareHouse
-}
+  return SoftwareHouse;
+};

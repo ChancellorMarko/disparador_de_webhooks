@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const moment = require("moment");
+const { parseISO, isBefore, differenceInCalendarDays } = require("date-fns");
 
 const listagemProtocolosSchema = Joi.object({
   start_date: Joi.date().iso().required(),
@@ -16,12 +16,15 @@ const validateListagemProtocolos = (req, res, next) => {
     return res.status(400).json({ success: false, error: error.details[0].message });
   }
 
-  const startDate = moment(req.query.start_date);
-  const endDate = moment(req.query.end_date);
-  if (endDate.isBefore(startDate)) {
+  const startDate = parseISO(req.query.start_date);
+  const endDate = parseISO(req.query.end_date);
+
+  if (isBefore(endDate, startDate)) {
     return res.status(400).json({ success: false, error: "A data final não pode ser menor que a data inicial." });
   }
-  if (endDate.diff(startDate, 'days') > 31) {
+
+  const daysDifference = differenceInCalendarDays(endDate, startDate);
+  if (daysDifference > 31) {
     return res.status(400).json({ success: false, error: "O intervalo entre as datas não pode exceder 31 dias." });
   }
 
