@@ -1,30 +1,47 @@
 'use strict';
-
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("contas", {
+    await queryInterface.createTable("cedentes", {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
       },
-      // REMOVIDO: Campo 'data_criacao' redundante.
-      produto: {
+      data_criacao: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      cnpj: {
+        type: Sequelize.STRING(14),
+        allowNull: false,
+        unique: true,
+      },
+      // ADICIONADOS: Campos que seu código precisa
+      razao_social: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      banco_codigo: {
+      nome_fantasia: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
-      cedente_id: {
+      token: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      softwarehouse_id: {
         type: Sequelize.INTEGER,
-        // AJUSTADO: Chaves estrangeiras não devem ser nulas.
         allowNull: false,
         references: {
-          model: "cedentes",
+          model: "software_houses",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -41,18 +58,14 @@ module.exports = {
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
-    // Índices continuam os mesmos
-    await queryInterface.addIndex("contas", ["cedente_id"]);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("contas");
+    await queryInterface.dropTable("cedentes");
   },
 };

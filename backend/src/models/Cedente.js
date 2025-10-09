@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize")
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const Cedente = sequelize.define(
@@ -10,19 +10,31 @@ module.exports = (sequelize) => {
         autoIncrement: true,
         allowNull: false,
       },
+      // >>> A CORREÇÃO ESTÁ AQUI <<<
       data_criacao: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
       },
+      // -----------------------------
       cnpj: {
         type: DataTypes.STRING(14),
         allowNull: false,
         unique: true,
-        validate: {
-          len: [14, 14],
-          isNumeric: true,
-        },
+        validate: { len: [14, 14], isNumeric: true },
+      },
+      razao_social: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      nome_fantasia: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: { isEmail: true },
       },
       token: {
         type: DataTypes.STRING,
@@ -32,54 +44,37 @@ module.exports = (sequelize) => {
       softwarehouse_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-          model: "software_houses",
-          key: "id",
-        },
+        references: { model: "software_houses", key: "id" },
       },
       status: {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: "ativo",
-        validate: {
-          isIn: [["ativo", "inativo"]],
-        },
+        validate: { isIn: [["ativo", "inativo", "bloqueado"]] },
       },
       configuracao_notificacao: {
-        type: DataTypes.JSONB, // PostgreSQL
+        type: DataTypes.JSONB,
         allowNull: true,
-        defaultValue: null,
       },
     },
     {
       tableName: "cedentes",
       underscored: true,
-      timestamps: false,
-    },
-  )
+      timestamps: true,
+    }
+  );
 
   Cedente.associate = (models) => {
     Cedente.belongsTo(models.SoftwareHouse, {
       foreignKey: "softwarehouse_id",
       as: "softwareHouse",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
-    })
-
-    Cedente.hasMany(models.Conta, {
-      foreignKey: "cedente_id",
-      as: "contas",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
-    })
-
+    });
+    Cedente.hasMany(models.Conta, { foreignKey: "cedente_id", as: "contas" });
     Cedente.hasMany(models.WebhookReprocessado, {
       foreignKey: "cedente_id",
       as: "webhooksReprocessados",
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
-    })
-  }
+    });
+  };
 
-  return Cedente
-}
+  return Cedente;
+};

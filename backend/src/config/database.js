@@ -1,5 +1,5 @@
-const { Sequelize } = require("sequelize")
-require("dotenv").config()
+const { Sequelize } = require("sequelize");
+require("dotenv").config();
 
 const sequelize = new Sequelize({
   dialect: "postgres",
@@ -9,6 +9,9 @@ const sequelize = new Sequelize({
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "",
   logging: process.env.NODE_ENV === "development" ? console.log : false,
+  
+  timezone: 'America/Sao_Paulo', 
+
   pool: {
     max: 10,
     min: 2,
@@ -24,20 +27,20 @@ const sequelize = new Sequelize({
     underscored: true,
     freezeTableName: true,
   },
-})
+});
 
 // Teste de conexão
 const testConnection = async () => {
   try {
-    await sequelize.authenticate()
-    console.log("✅ Conexão com o banco de dados estabelecida com sucesso.")
+    await sequelize.authenticate();
+    console.log("✅ Conexão com o banco de dados estabelecida com sucesso.");
   } catch (error) {
-    console.error("❌ Erro ao conectar com o banco de dados:", error.message)
-    process.exit(1)
+    console.error("❌ Erro ao conectar com o banco de dados:", error.message);
+    process.exit(1);
   }
-}
+};
 
 module.exports = {
   sequelize,
   testConnection,
-}
+};

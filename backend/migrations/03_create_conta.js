@@ -1,32 +1,32 @@
 'use strict';
-
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("cedentes", {
+    await queryInterface.createTable("contas", {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true,
       },
-      // REMOVIDO: Campo 'data_criacao' redundante.
-      cnpj: {
-        type: Sequelize.STRING(14),
+      // ADICIONADO: Conforme a documentação
+      data_criacao: {
+        type: Sequelize.DATE,
         allowNull: false,
-        unique: true,
+        defaultValue: Sequelize.NOW,
       },
-      token: {
+      produto: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
-      softwarehouse_id: {
+      banco_codigo: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      cedente_id: {
         type: Sequelize.INTEGER,
-        // AJUSTADO: Chaves estrangeiras não devem ser nulas para garantir integridade.
         allowNull: false,
         references: {
-          model: "software_houses",
+          model: "cedentes",
           key: "id",
         },
         onUpdate: "CASCADE",
@@ -43,20 +43,14 @@ module.exports = {
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
-    // Índices continuam os mesmos
-    await queryInterface.addIndex("cedentes", ["cnpj"]);
-    await queryInterface.addIndex("cedentes", ["token"]);
-    await queryInterface.addIndex("cedentes", ["softwarehouse_id"]);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("cedentes");
+    await queryInterface.dropTable("contas");
   },
 };
