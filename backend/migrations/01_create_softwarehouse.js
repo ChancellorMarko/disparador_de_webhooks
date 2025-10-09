@@ -8,11 +8,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      // ADICIONADO: Conforme a documentação
+      data_criacao: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
       cnpj: {
         type: Sequelize.STRING(14),
         allowNull: false,
         unique: true,
       },
+      // ADICIONADOS: Campos que seu código precisa para funcionar
       razao_social: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -54,4 +61,3 @@ module.exports = {
     await queryInterface.dropTable("software_houses");
   },
 };
-

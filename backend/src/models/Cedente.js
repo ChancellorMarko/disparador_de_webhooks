@@ -10,11 +10,16 @@ module.exports = (sequelize) => {
         autoIncrement: true,
         allowNull: false,
       },
+      // >>> A CORREÇÃO ESTÁ AQUI <<<
+      data_criacao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      // -----------------------------
       cnpj: {
         type: DataTypes.STRING(14),
         allowNull: false,
         unique: true,
-        // A validação que estava causando o erro
         validate: { len: [14, 14], isNumeric: true },
       },
       razao_social: {

@@ -8,12 +8,17 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
+      data_criacao: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
       cnpj: {
         type: Sequelize.STRING(14),
         allowNull: false,
         unique: true,
       },
-      // ADICIONADO: Campos que estavam faltando na tabela
+      // ADICIONADOS: Campos que seu código precisa
       razao_social: {
         type: Sequelize.STRING,
         allowNull: false,

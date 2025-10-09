@@ -12,10 +12,12 @@ module.exports = {
       nome_fantasia: 'SH Teste',
       email: 'contato@shteste.com',
       senha: hashedPassword,
-     
       token: uuidv4().replace(/-/g, ""),
-      
       status: 'ativo',
+      
+      // LINHA ADICIONADA:
+      data_criacao: new Date(),
+
       created_at: new Date(),
       updated_at: new Date(),
     }], {});

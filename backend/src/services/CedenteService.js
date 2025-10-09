@@ -5,6 +5,9 @@ const { NotFoundError, ValidationError } = require("../utils/errors");
 
 class CedenteService {
   async create(data, softwareHouseId) {
+    // >>> CONSOLE.LOG ADICIONADO PARA O TESTE <<<
+    console.log('--- EXECUTANDO A NOVA VERSÃO CORRIGIDA DO CEDENTE SERVICE ---');
+
     const softwareHouse = await SoftwareHouseRepository.findById(softwareHouseId);
     if (!softwareHouse) {
       throw new NotFoundError("Software House não encontrada");
@@ -30,6 +33,7 @@ class CedenteService {
       token,
       softwarehouse_id: softwareHouseId,
       status: "ativo",
+      data_criacao: new Date(),
       configuracao_notificacao: data.configuracao_notificacao || {
         url: null, email: null, tipos: {}, cancelado: true, pago: true,
         disponivel: true, header: false, ativado: false, header_campo: "",

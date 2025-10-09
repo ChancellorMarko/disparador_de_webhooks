@@ -1,6 +1,4 @@
 'use strict';
-
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("contas", {
@@ -10,7 +8,12 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      // REMOVIDO: Campo 'data_criacao' redundante.
+      // ADICIONADO: Conforme a documentação
+      data_criacao: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
       produto: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -21,7 +24,6 @@ module.exports = {
       },
       cedente_id: {
         type: Sequelize.INTEGER,
-        // AJUSTADO: Chaves estrangeiras não devem ser nulas.
         allowNull: false,
         references: {
           model: "cedentes",
@@ -41,16 +43,12 @@ module.exports = {
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
-    // Índices continuam os mesmos
-    await queryInterface.addIndex("contas", ["cedente_id"]);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("contas");
