@@ -9,9 +9,14 @@ class ServicoService {
       throw new NotFoundError("Convênio não encontrado");
     }
 
-    const servicoData = { ...data, convenio_id: convenioId, status: "ativo" };
+    // A CORREÇÃO ESTÁ AQUI: Removemos o "status: 'ativo'" que estava fixo.
+    // O status virá de dentro do objeto 'data' (o corpo da requisição).
+    const servicoData = { ...data, convenio_id: convenioId };
+    
     return await ServicoRepository.create(servicoData);
   }
+
+  // ... o resto do arquivo continua igual ...
 
   async findById(id) {
     const servico = await ServicoRepository.findById(id);

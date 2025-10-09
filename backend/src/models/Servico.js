@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize")
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   const Servico = sequelize.define(
@@ -26,19 +26,18 @@ module.exports = (sequelize) => {
       status: {
         type: DataTypes.STRING,
         allowNull: false,
+        // A CORREÇÃO ESTÁ AQUI: Permitindo os status da regra de negócio
         validate: {
-          isIn: [["ativo", "inativo"]], // Note: A documentação pedia outros status aqui, como 'REGISTRADO'
+          isIn: [["REGISTRADO", "LIQUIDADO", "BAIXADO", "ativo", "inativo"]],
         },
       },
     },
     {
       tableName: "servicos",
       underscored: true,
-
-      // >>> A CORREÇÃO ESTÁ AQUI <<<
-      timestamps: true, // Alterado de 'false' para 'true'
-    },
-  )
+      timestamps: true,
+    }
+  );
 
   Servico.associate = (models) => {
     Servico.belongsTo(models.Convenio, {
@@ -46,8 +45,8 @@ module.exports = (sequelize) => {
       as: "convenio",
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
-    })
-  }
+    });
+  };
 
-  return Servico
-}
+  return Servico;
+};

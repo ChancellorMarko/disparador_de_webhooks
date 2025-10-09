@@ -3,12 +3,10 @@ const router = express.Router();
 
 const ReenvioController = require("../controllers/ReenvioController");
 const { validateReenvio } = require("../validators/ReenvioValidator");
-const shAuth = require('../middlewares/shAuth');
+const { authenticateJWT } = require('../middlewares/auth'); // Importação do JWT
+const { shAuth } = require('../middlewares/shAuth');     // Importação correta com chaves {}
 
-// A autenticação (headerAuth) já é aplicada a esta rota no app.js,
-// então não precisamos adicioná-la aqui.
-
-// A rota passa primeiro pelo validador do Joi e depois chama o método 'create' do controller.
-router.post("/", validateReenvio, ReenvioController.create);
+// A rota agora passa pela autenticação JWT, depois pelo shAuth, e depois pelo validador
+router.post("/", authenticateJWT, shAuth, validateReenvio, ReenvioController.create);
 
 module.exports = router;

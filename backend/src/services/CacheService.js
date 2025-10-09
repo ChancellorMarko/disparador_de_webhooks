@@ -1,19 +1,25 @@
-const redisClient = require("../config/redis"); // Ajuste o caminho para sua config do Redis
-const AppError = require("../utils/errors");
+const redis = require('redis');
+const { AppError } = require("../utils/errors");
 
-/**
- * Encapsula a lógica de interação com o cache (Redis).
- * Isso torna os outros serviços mais limpos e facilita a troca do sistema de cache no futuro.
- */
 class CacheService {
-  /**
-   * Busca um valor no cache pela chave.
-   * @param {string} key - A chave para buscar.
-   * @returns {Promise<any | null>} O valor encontrado (já deserializado) ou null.
-   */
-  static async get(key) {
+  constructor() {
+    this.redisClient = redis.createClient({
+      // Coloque sua URL do Redis aqui se tiver
+      // url: process.env.REDIS_URL
+    });
+    this.redisClient.on('error', (err) => console.error('Redis Client Error:', err));
+    this.connect();
+  }
+
+  async connect() {
+    if (!this.redisClient.isOpen) {
+      await this.redisClient.connect();
+    }
+  }
+
+  async get(key) {
     try {
-      const data = await redisClient.get(key);
+      const data = await this.redisClient.get(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error("Erro ao buscar do cache:", error);
@@ -21,33 +27,24 @@ class CacheService {
     }
   }
 
-  /**
-   * Salva um valor no cache.
-   * @param {string} key - A chave para salvar.
-   * @param {any} value - O valor a ser salvo (será serializado).
-   * @param {number} ttl - Tempo de vida em segundos (Time To Live).
-   */
-  static async set(key, value, ttl) {
+  async set(key, value, ttl) {
     try {
-      await redisClient.set(key, JSON.stringify(value), {
-        EX: ttl, // Define o tempo de expiração em segundos
+      await this.redisClient.set(key, JSON.stringify(value), {
+        EX: ttl,
       });
     } catch (error) {
       console.error("Erro ao salvar no cache:", error);
     }
   }
 
-  /**
-   * Deleta uma chave do cache.
-   * @param {string} key - A chave a ser deletada.
-   */
-  static async del(key) {
+  async del(key) {
     try {
-      await redisClient.del(key);
+      await this.redisClient.del(key);
     } catch (error) {
       console.error("Erro ao deletar do cache:", error);
     }
   }
 }
 
-module.exports = CacheService;
+// Exporta uma instância da classe, garantindo uma única conexão
+module.exports = new CacheService();
