@@ -27,14 +27,16 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isIn: [["ativo", "inativo"]],
+          isIn: [["ativo", "inativo"]], // Note: A documentação pedia outros status aqui, como 'REGISTRADO'
         },
       },
     },
     {
       tableName: "servicos",
       underscored: true,
-      timestamps: false,
+
+      // >>> A CORREÇÃO ESTÁ AQUI <<<
+      timestamps: true, // Alterado de 'false' para 'true'
     },
   )
 

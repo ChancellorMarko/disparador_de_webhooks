@@ -51,8 +51,10 @@ module.exports = (sequelize) => {
     {
       tableName: "contas",
       underscored: true,
-      timestamps: false,
-    },
+      
+      // >>> A CORREÇÃO ESTÁ AQUI <<<
+      timestamps: true, // Alterado de 'false' para 'true'
+    }
   )
 
   Conta.associate = (models) => {
