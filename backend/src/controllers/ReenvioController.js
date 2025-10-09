@@ -1,16 +1,11 @@
 const ReenvioService = require("../services/ReenvioService");
 
 class ReenvioController {
-  /**
-   * @desc    Cria uma nova solicitação de reenvio de webhook
-   * @route   POST /api/reenviar
-   */
   async create(req, res, next) {
     try {
-      const reenvioData = req.body;
-      const authData = req.auth; // Injetado pelo middleware headerAuth
-
-      const result = await ReenvioService.criarReenvio(reenvioData, authData);
+      // CORREÇÃO: Passamos o req.body e o req.cedente para o serviço.
+      // O req.cedente foi colocado aqui pelo middleware shAuth.
+      const result = await ReenvioService.criarReenvio(req.body, req.cedente);
 
       res.status(201).json({
         success: true,
@@ -23,5 +18,4 @@ class ReenvioController {
   }
 }
 
-// A linha mais importante: exporta a instância para ser usada nas rotas
 module.exports = new ReenvioController();

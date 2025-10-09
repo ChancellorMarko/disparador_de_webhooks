@@ -1,6 +1,5 @@
 const { WebhookReprocessado } = require("../models");
 const { v4: uuidv4 } = require("uuid");
-const CacheService = require("./CacheService");
 const ServicoRepository = require("../repositories/ServicoRepository");
 const { Op } = require("sequelize");
 const { AppError } = require("../utils/errors");
@@ -12,22 +11,18 @@ const situacaoMap = {
 };
 
 class ReenvioService {
-  static async criarReenvio(reenvioData, auth) {
+  static async criarReenvio(reenvioData, cedente) {
     try {
       const { product, id, kind, type } = reenvioData;
-      const { cedente } = auth;
 
-      // >>> LINHAS COMENTADAS PARA O TESTE <<<
-      // const cacheKey = `reenvio:${JSON.stringify(reenvioData)}`;
-      // const cachedRequest = await CacheService.get(cacheKey);
-      // if (cachedRequest) {
-      //   throw new AppError("Requisição idêntica já processada na última hora.", 429);
-      // }
+      // >>> ADICIONADO PARA DEPURAÇÃO FINAL <<<
+      console.log('VALORES RECEBIDOS PARA VALIDAÇÃO:', { product, type });
 
       const situacaoEsperada = situacaoMap[product][type];
+      
       const idsIncorretos = await this.validarSituacaoDosServicos(id, situacaoEsperada);
       if (idsIncorretos.length > 0) {
-        const errorMessage = `A situação do ${product} diverge do tipo solicitado. IDs incorretos: ${idsIncorretos.join(", ")}`;
+        const errorMessage = `A situação do ${product} diverge. IDs incorretos: ${idsIncorretos.join(", ")}`;
         throw new AppError(errorMessage, 422);
       }
 
@@ -43,9 +38,6 @@ class ReenvioService {
         protocolo,
       });
 
-      // >>> LINHA COMENTADA PARA O TESTE <<<
-      // await CacheService.set(cacheKey, { processed: true }, 3600);
-      
       return { protocolo };
 
     } catch (error) {
