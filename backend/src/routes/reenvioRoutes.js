@@ -3,6 +3,7 @@ const router = express.Router();
 
 const ReenvioController = require("../controllers/ReenvioController");
 const { validateReenvio } = require("../validators/ReenvioValidator");
+const shAuth = require('../middlewares/shAuth');
 
 // A autenticação (headerAuth) já é aplicada a esta rota no app.js,
 // então não precisamos adicioná-la aqui.

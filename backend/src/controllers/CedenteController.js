@@ -1,4 +1,5 @@
 const CedenteService = require("../services/CedenteService");
+const { AppError } = require("../utils/errors"); // Importe o AppError se ainda não o fez
 
 class CedenteController {
   /**
@@ -7,9 +8,13 @@ class CedenteController {
    */
   async create(req, res, next) {
     try {
-      // CORREÇÃO: O ID da SoftwareHouse vem do `req.user`,
-      // que foi adicionado pelo middleware `authenticateJWT`.
-      const softwareHouseId = req.user.id;
+      // CORREÇÃO: O ID da SoftwareHouse vem de `req.auth.softwareHouseId`.
+      const softwareHouseId = req.auth.softwareHouseId;
+
+      // Adicionamos uma verificação para garantir que o token continha o ID
+      if (!softwareHouseId) {
+        throw new AppError("ID da Software House não encontrado no token.", 403);
+      }
       
       const novoCedente = await CedenteService.create(req.body, softwareHouseId);
       
@@ -29,8 +34,14 @@ class CedenteController {
    */
   async findAll(req, res, next) {
     try {
-      // CORREÇÃO: Usa o `req.user.id` para filtrar os cedentes
-      const filters = { ...req.query, softwarehouse_id: req.user.id };
+      // CORREÇÃO: Usa o `req.auth.softwareHouseId` para filtrar os cedentes
+      const softwareHouseId = req.auth.softwareHouseId;
+
+      if (!softwareHouseId) {
+        throw new AppError("ID da Software House não encontrado no token.", 403);
+      }
+
+      const filters = { ...req.query, softwarehouse_id: softwareHouseId };
       
       const cedentes = await CedenteService.findAll(filters);
       
@@ -43,8 +54,7 @@ class CedenteController {
     }
   }
 
-  // Os outros métodos (findById, update, delete) não precisam de alteração
-  // porque eles já pegam o ID do recurso pelos parâmetros da rota (req.params).
+  // ... o resto dos seus métodos (findById, update, delete) continua igual ...
   
   async findById(req, res, next) {
     try {

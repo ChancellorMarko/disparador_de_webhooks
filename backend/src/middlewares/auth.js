@@ -9,57 +9,41 @@ const authenticateJWT = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-      // Usa o errorHandler para padronizar a resposta de erro
-      return next(new AppError("Token de autenticação não fornecido", 401));
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // Se o cabeçalho não existir ou não começar com "Bearer ", lança um erro.
+      throw new AppError("Token de autenticação não fornecido ou em formato inválido.", 401);
     }
 
-    const parts = authHeader.split(" ");
-    if (parts.length !== 2 || parts[0] !== "Bearer") {
-      return next(new AppError("Formato de token inválido. Use: Bearer <token>", 401));
-    }
+    const token = authHeader.split(" ")[1];
 
-    const token = parts[1];
-    if (!token) {
-      return next(new AppError("Token não fornecido", 401));
-    }
+    // Verifica o token de forma síncrona dentro do bloco try...catch
+    const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Verifica o token usando a chave secreta do seu arquivo .env
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        if (err.name === "TokenExpiredError") {
-          return next(new AppError("Token expirado", 401));
-        }
-        // Para outros erros (token malformado, etc.)
-        return next(new AppError("Token inválido", 403));
-      }
+    // CORREÇÃO APLICADA AQUI:
+    // Anexa os dados decodificados do token em `req.auth` em vez de `req.user`.
+    // Isso fará com que seu Service encontre as informações onde ele espera.
+    req.auth = decodedPayload;
 
-      // Anexa os dados do usuário à requisição para uso nos controllers
-      req.user = user;
-      next();
-    });
+    // Se o token for válido, passa para o próximo middleware ou controller.
+    next();
+
   } catch (error) {
-    // Captura qualquer outro erro inesperado e passa para o errorHandler
+    // O bloco catch vai capturar erros do jwt.verify (token expirado, inválido)
+    // e também o erro que lançamos manualmente acima.
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new AppError("Token inválido.", 401));
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new AppError("Token expirado.", 401));
+    }
+    
+    // Passa qualquer outro erro para o seu middleware de tratamento de erros global.
     next(error);
   }
 };
 
-/**
- * Middleware para verificar se o usuário autenticado tem um tipo específico.
- * Deve ser usado DEPOIS do authenticateJWT.
- * Ex: router.get('/admin', authenticateJWT, requireUserType('admin'));
- * @param {string} requiredType - O tipo de usuário requerido (ex: 'software_house')
- */
-const requireUserType = (requiredType) => {
-  return (req, res, next) => {
-    if (!req.user || req.user.type !== requiredType) {
-      return next(new AppError("Permissão insuficiente para esta operação", 403));
-    }
-    next();
-  };
-};
-
+// ... o restante do seu arquivo (requireUserType) pode continuar como está.
 module.exports = {
   authenticateJWT,
-  requireUserType,
+  // ...
 };

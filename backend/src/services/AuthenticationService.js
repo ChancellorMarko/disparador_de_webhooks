@@ -18,8 +18,10 @@ class AuthenticationService {
       throw new ValidationError("Usuário não encontrado ou credenciais inválidas.", 401);
     }
 
+    // ### CORREÇÃO DEFINITIVA AQUI ###
+    // Renomeamos 'id' para 'softwareHouseId' para ser consistente com o resto da aplicação.
     const payload = {
-      id: softwareHouse.id,
+      softwareHouseId: softwareHouse.id,
       cnpj: softwareHouse.cnpj,
     };
 
@@ -35,8 +37,8 @@ class AuthenticationService {
   }
 
   /**
-   * ADICIONADO: Busca os dados da Software House autenticada.
-   * @param {number} userId - O ID do usuário vindo do token JWT.
+   * Busca os dados da Software House autenticada.
+   * @param {number} userId - O ID do usuário vindo do token.
    */
   async getMe(userId) {
     const softwareHouse = await SoftwareHouseRepository.findById(userId);
@@ -52,7 +54,6 @@ class AuthenticationService {
       nome_fantasia: softwareHouse.nome_fantasia,
       email: softwareHouse.email,
       status: softwareHouse.status,
-      // IMPORTANTE: Retornando o token de API para facilitar os testes
       token: softwareHouse.token,
     };
   }

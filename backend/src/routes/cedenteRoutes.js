@@ -1,14 +1,21 @@
-const express = require("express")
-const router = express.Router()
-const CedenteController = require("../controllers/CedenteController")
+const express = require("express");
+const router = express.Router();
+const CedenteController = require("../controllers/CedenteController");
 
-// The authenticateJWT middleware is already applied at the app level in app.js
-// when registering this route: app.use("/api/cedentes", authenticateJWT, cedenteRoutes)
+// 1. IMPORTE O MIDDLEWARE shAuth
+// Lembre-se de usar as chaves {} porque exportamos um objeto
+const { shAuth } = require('../middlewares/shAuth');
 
-router.post("/", CedenteController.create)
-router.get("/", CedenteController.findAll)
-router.get("/:id", CedenteController.findById)
-router.put("/:id", CedenteController.update)
-router.delete("/:id", CedenteController.delete)
+// O middleware authenticateJWT já foi aplicado no arquivo principal (app.js)
 
-module.exports = router
+// 2. APLIQUE o shAuth na rota de criação
+// O fluxo será: authenticateJWT (do app.js) -> shAuth (daqui) -> CedenteController.create
+router.post("/", shAuth, CedenteController.create);
+
+// As outras rotas não precisam da validação shAuth, então continuam como estavam
+router.get("/", CedenteController.findAll);
+router.get("/:id", CedenteController.findById);
+router.put("/:id", CedenteController.update);
+router.delete("/:id", CedenteController.delete);
+
+module.exports = router;
