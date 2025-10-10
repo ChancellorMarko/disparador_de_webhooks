@@ -1,51 +1,74 @@
-const { SoftwareHouse, Cedente } = require("./models"); 
-const AppError = require("../utils/AppError"); // Supondo uma classe de erro
+const { Servico, Convenio } = require("../models");
+const { Op } = require("sequelize");
 
-const headerAuth = async (req, res, next) => {
-  try {
-    const {
-      "cnpj-sh": cnpjSh,
-      "token-sh": tokenSh,
-      "cnpj-cedente": cnpjCedente,
-      "token-cedente": tokenCedente,
-    } = req.headers;
-
-    // 1. Valida se todos os 4 headers obrigatórios estão presentes
-    if (!cnpjSh || !tokenSh || !cnpjCedente || !tokenCedente) {
-      throw new AppError(
-        "Headers de autenticação incompletos. São necessários: cnpj-sh, token-sh, cnpj-cedente, token-cedente.",
-        401 // Unauthorized
-      );
-    }
-
-    // 2. Valida a Software House
-    const softwareHouse = await SoftwareHouse.findOne({
-      where: { cnpj: cnpjSh, token: tokenSh, status: "ativo" },
-    });
-    if (!softwareHouse) {
-      throw new AppError("Software House não autorizada ou inativa.", 403); // Forbidden
-    }
-
-    // 3. Valida o Cedente E se ele pertence à Software House
-    const cedente = await Cedente.findOne({
-      where: {
-        cnpj: cnpjCedente,
-        token: tokenCedente,
-        softwarehouse_id: softwareHouse.id, // A validação mais importante
-        status: "ativo",
-      },
-    });
-    if (!cedente) {
-      throw new AppError("Cedente não autorizado, inativo ou não pertence a esta Software House.", 403);
-    }
-
-    // 4. Anexa os dados à requisição para uso nos Controllers
-    req.auth = { softwareHouse, cedente };
-
-    next();
-  } catch (error) {
-    next(error); // Passa o erro para o middleware de erro global
+class ServicoRepository {
+  async create(data) {
+    return await Servico.create(data);
   }
-};
 
-module.exports = { headerAuth };
+  async findById(id) {
+    return await Servico.findByPk(id, {
+      include: [{ model: Convenio, as: "convenio", required: false }],
+    });
+  }
+
+  async findAll(filters = {}) {
+    const where = {};
+    if (filters.status) where.status = filters.status;
+    if (filters.convenio_id) where.convenio_id = filters.convenio_id;
+    if (filters.id) where.id = { [Op.in]: Array.isArray(filters.id) ? filters.id : [filters.id] };
+
+    return await Servico.findAll({
+      where,
+      include: [{ model: Convenio, as: "convenio", required: false }],
+      // A aplicação espera a coluna 'created_at'
+      order: [["created_at", "DESC"]],
+    });
+  }
+
+  // ... (outros métodos do repositório que também usam created_at)
+  async findByConvenio(convenioId) {
+    return await Servico.findAll({
+        where: { convenio_id: convenioId },
+        order: [["created_at", "DESC"]],
+    });
+  }
+  
+  async findActiveByConvenio(convenioId) {
+      return await Servico.findAll({
+          where: { convenio_id: convenioId, status: "ativo" },
+          order: [["created_at", "DESC"]],
+      });
+  }
+  
+  // ... (resto do código)
+  async update(id, data) {
+    const servico = await Servico.findByPk(id);
+    if (!servico) return null;
+    return await servico.update(data);
+  }
+
+  async delete(id) {
+    const servico = await Servico.findByPk(id);
+    if (!servico) return false;
+    await servico.destroy();
+    return true;
+  }
+
+  async activate(id) {
+    return await this.update(id, { status: "ativo" });
+  }
+
+  async deactivate(id) {
+    return await this.update(id, { status: "inativo" });
+  }
+
+  async count(filters = {}) {
+    const where = {};
+    if (filters.status) where.status = filters.status;
+    if (filters.convenio_id) where.convenio_id = filters.convenio_id;
+    return await Servico.count({ where });
+  }
+}
+
+module.exports = new ServicoRepository();

@@ -1,0 +1,38 @@
+name: Validate Commit Messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Obtém todo o histórico
+
+      - name: Get commit messages
+        run: |
+          git log --format="%s" origin/main..HEAD > commits.txt
+
+      - name: Validate commit messages
+        id: validate
+        run: |
+          PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert|Merge|structure)(\\(.+\\))?:?.{0,100}$"
+          while IFS= read -r line; do
+            if ! [[ $line =~ $PATTERN ]]; then
+              echo "❌ Commit inválido: '$line'"
+              exit 1
+            else
+              echo "✅ Commit válido: '$line'"
+            fi
+          done < commits.txt
+
+      - name: Aprovar PR automaticamente
+        if: success() && github.event.pull_request.user.login != 'github-actions[bot]'
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

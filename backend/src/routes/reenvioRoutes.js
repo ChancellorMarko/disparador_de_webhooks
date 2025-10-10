@@ -1,29 +1,12 @@
-const express = require("express")
-const router = express.Router()
-const ReenvioService = require("../services/ReenvioService")
-const { headerAuth } = require("../middlewares/headerAuth")
-const { validateReenvio } = require("../validators/reenvioValidator")
+const express = require("express");
+const router = express.Router();
 
-/**
- * @route POST /api/reenviar
- * @desc Cria uma nova solicitação de reenvio de webhook
- * @access Private
- */
-router.post("/", headerAuth, validateReenvio, async (req, res, next) => {
-  try {
-    const reenvioData = req.body
-    const authData = req.auth // Dados injetados pelo middleware headerAuth
+const ReenvioController = require("../controllers/ReenvioController");
+const { validateReenvio } = require("../validators/ReenvioValidator");
+const { authenticateJWT } = require('../middlewares/auth'); // Importação do JWT
+const { shAuth } = require('../middlewares/shAuth');     // Importação correta com chaves {}
 
-    const result = await ReenvioService.criarReenvio(reenvioData, authData)
+// A rota agora passa pela autenticação JWT, depois pelo shAuth, e depois pelo validador
+router.post("/", authenticateJWT, shAuth, validateReenvio, ReenvioController.create);
 
-    res.status(201).json({
-      success: true,
-      data: result,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
-module.exports = router
+module.exports = router;
