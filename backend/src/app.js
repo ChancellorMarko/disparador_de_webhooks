@@ -72,10 +72,10 @@ const startServer = async () => {
     
     // >>> ADICIONADO: Lógica que inicia o disparador de webhooks <<<
     console.log('🚀 Disparador de webhooks ativado. Verificando a fila periodicamente.');
-    // Roda o worker a cada 1 minuto (60000 ms)
+    // Roda o worker a cada 5 minutos (300000 ms)
     setInterval(() => {
       WebhookDispatcherService.processarFila();
-    }, 60000);
+    }, 300000);
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
