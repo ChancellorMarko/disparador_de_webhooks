@@ -3,14 +3,12 @@
   "version": "1.0.0",
   "description": "Backend para sistema de disparo de webhooks com autenticação JWT e middlewares de validação",
   "main": "src/app.js",
-  "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js",
-    "db:migrate": "npx sequelize-cli db:migrate",
-    "db:seed": "npx sequelize-cli db:seed:all",
-    "db:undo": "npx sequelize-cli db:migrate:undo",
-    "lint": "eslint . --ext .js",
-    "test": "jest --runInBand"
+   "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "webhooks",

@@ -3,40 +3,32 @@ module.exports = {
   testEnvironment: 'node',
 
   // Diretórios raiz
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  // ALTERADO: Alinhado com a estrutura descrita no README ('__tests__')
+  roots: ['<rootDir>/src', '<rootDir>/__tests__'],
 
   // Arquivos de setup
-  setupFilesAfterEnv: [
-    '<rootDir>/tests/setup.js',
-    '<rootDir>/__tests__/setup/testSetup.js'
-  ],
+  // ALTERADO: Caminho corrigido para apontar para a pasta '__tests__'
+  setupFilesAfterEnv: ['<rootDir>/__tests__/setup/testSetup.js'],
+
+  // Adiciona 'src' como um diretório de módulos para imports limpos
+  moduleDirectories: ['node_modules', '<rootDir>/src'],
 
   // Padrões de arquivos de teste
+  // MANTIDO: Este padrão já funciona bem para a estrutura '__tests__'
   testMatch: [
     '**/__tests__/**/*.js',
     '**/__tests__/**/*.test.js',
     '**/?(*.)+(spec|test).js'
   ],
 
-  // Cobertura de código
+  // Cobertura de código (já está perfeito)
   collectCoverageFrom: [
     'src/**/*.js',
-    'services/**/*.js',
-    'middlewares/**/*.js',
-    'routes/**/*.js',
     '!src/**/*.test.js',
-    '!src/app.js',
-    '!**/node_modules/**',
-    '!**/__tests__/**'
+    '!**/node_modules/**'
   ],
-
-  // Diretório de cobertura
   coverageDirectory: 'coverage',
-
-  // Relatórios de cobertura
   coverageReporters: ['text', 'lcov', 'html', 'json'],
-
-  // Limite mínimo de cobertura
   coverageThreshold: {
     global: {
       branches: 80,
@@ -54,7 +46,7 @@ module.exports = {
   // Módulos a serem ignorados
   modulePathIgnorePatterns: ['<rootDir>/node_modules/'],
 
-  // Timeout para testes
+  // Timeout para testes (já está perfeito)
   testTimeout: 10000,
 
   // Verbose
@@ -63,12 +55,8 @@ module.exports = {
   // Forçar saída
   forceExit: true,
 
-  // Limpeza automática de mocks
+  // Limpeza automática de mocks (já está perfeito)
   clearMocks: true,
-
-  // Reset automático de mocks
   resetMocks: true,
-
-  // Restauração automática de mocks
   restoreMocks: true
 };

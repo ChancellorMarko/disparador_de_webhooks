@@ -1,5 +1,5 @@
-const AuthenticationService = require('../../src/services/AuthenticationService');
-const SoftwareHouse = require('../../src/models/SoftwareHouse');
+const AuthenticationService = require('../../../src/services/AuthenticationService');
+const SoftwareHouse = require('../../../src/models/SoftwareHouse');
 const bcrypt = require('bcryptjs');
 
 // Mock do modelo SoftwareHouse
