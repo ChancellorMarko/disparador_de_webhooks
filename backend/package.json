@@ -1,11 +1,11 @@
 {
   "name": "disparador-webhooks-backend",
   "version": "1.0.0",
-  "description": "Backend para disparador de webhooks",
-  "main": "src/server.js",
-  "scripts": {
-    "start": "node src/app.js",
+  "description": "Backend para sistema de disparo de webhooks com autenticação JWT e middlewares de validação",
+  "main": "src/app.js",
+   "scripts": {
     "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:seed": "npx sequelize-cli db:seed:all",
     "db:undo": "npx sequelize-cli db:migrate:undo",
