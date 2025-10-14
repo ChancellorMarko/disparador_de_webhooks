@@ -1,52 +1,51 @@
 {
   "name": "disparador-webhooks-backend",
   "version": "1.0.0",
-  "description": "Backend para sistema de disparo de webhooks com autenticação JWT e middlewares de validação",
-  "main": "src/app.js",
-   "scripts": {
+  "description": "Backend para disparador de webhooks",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:undo": "npx sequelize-cli db:migrate:undo",
+    "lint": "eslint . --ext .js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:unit": "jest --testPathPattern=unit",
-    "test:integration": "jest --testPathPattern=integration",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "migrate": "node migrations/index.js"
   },
   "keywords": [
-    "webhooks",
-    "jwt",
-    "authentication",
-    "middleware",
-    "express",
-    "postgresql",
-    "redis"
+    "webhook",
+    "api",
+    "backend"
   ],
-  "author": "Equipe Disparador Webhooks",
-  "license": "MIT",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "axios": "^1.12.2",
-    "bcryptjs": "^2.4.3",
+    "axios": "^1.6.2",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
-    "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
-    "joi": "^17.11.0",
+    "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "redis": "^4.6.10",
-    "sequelize": "^6.35.2",
+    "sequelize": "^6.35.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
+    "jest-express": "^1.12.0",
     "nodemon": "^3.0.2",
-    "sequelize-cli": "^6.6.2",
     "supertest": "^6.3.3"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
   }
 }

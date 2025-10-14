@@ -1,42 +1,48 @@
 const ProtocoloService = require("../services/ProtocoloService");
 
+// REMOVEMOS a instância que era criada aqui.
+// const protocoloService = new ProtocoloService()
+
 class ProtocoloController {
   /**
-   * @desc    Lista protocolos com base nos filtros da documentação
-   * @route   GET /api/protocolos
+   * @desc     Lista protocolos com base nos filtros da documentação
+   * @route    GET /api/protocolos
    */
   async findAll(req, res, next) {
     try {
-      // Filtros podem vir da query string
-      const filters = req.query; 
-      // Cedente do usuário autenticado (presumindo que você esteja usando um middleware para isso)
-      const cedenteId = req.auth.cedente.id; 
+      // CORREÇÃO: Criamos a instância do serviço aqui, dentro do método.
+      // Agora, o mock do Jest será aplicado corretamente durante os testes.
+      const protocoloService = new ProtocoloService();
+
+      const filters = req.query;
+      const cedenteId = req.auth.cedente.id;
 
       // Chama o serviço que retorna os resultados
-      const resultados = await ProtocoloService.findAll(filters, cedenteId);
-      
+      const resultados = await protocoloService.findAll(filters, cedenteId);
+
       // Retorna a resposta de sucesso com os dados
       res.status(200).json({
         success: true,
         data: resultados,
       });
     } catch (error) {
-      // Se houver erro, chama o middleware de tratamento de erro
       next(error);
     }
   }
 
   /**
-   * @desc    Busca um protocolo específico pelo seu UUID
-   * @route   GET /api/protocolos/:uuid
+   * @desc     Busca um protocolo específico pelo seu UUID
+   * @route    GET /api/protocolos/:uuid
    */
   async findByUuid(req, res, next) {
     try {
-      const { uuid } = req.params; // Extrai o UUID dos parâmetros da URL
-      const cedenteId = req.auth.cedente.id; // Cedente do usuário autenticado
+      // Boa prática: Aplicamos a mesma correção aqui.
+      const protocoloService = new ProtocoloService();
+      
+      const { uuid } = req.params;
+      const cedenteId = req.auth.cedente.id;
 
-      // Chama o serviço que busca o protocolo
-      const protocolo = await ProtocoloService.findByUuid(uuid, cedenteId);
+      const protocolo = await protocoloService.findByUuid(uuid, cedenteId);
 
       if (!protocolo) {
         return res.status(404).json({
@@ -45,13 +51,11 @@ class ProtocoloController {
         });
       }
 
-      // Retorna a resposta de sucesso com o protocolo encontrado
       res.status(200).json({
         success: true,
         data: protocolo,
       });
     } catch (error) {
-      // Se houver erro, chama o middleware de tratamento de erro
       next(error);
     }
   }

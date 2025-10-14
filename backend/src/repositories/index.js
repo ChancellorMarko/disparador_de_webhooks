@@ -3,6 +3,7 @@ const CedenteRepository = require("./CedenteRepository")
 const ContaRepository = require("./ContaRepository")
 const ConvenioRepository = require("./ConvenioRepository")
 const ServicoRepository = require("./ServicoRepository")
+const ProtocoloRepository = require("./ProtocoloRepository")
 
 module.exports = {
   SoftwareHouseRepository,
@@ -10,4 +11,5 @@ module.exports = {
   ContaRepository,
   ConvenioRepository,
   ServicoRepository,
+  ProtocoloRepository,
 }

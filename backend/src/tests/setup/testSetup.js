@@ -1,33 +1,43 @@
-// Configuração do ambiente de teste
-process.env.NODE_ENV = 'test';
-process.env.JWT_SECRET = 'test-secret-key';
-process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-key';
-process.env.JWT_EXPIRES_IN = '1h';
-process.env.JWT_REFRESH_EXPIRES_IN = '7d';
+// src/tests/setup/testSetup.js
+
+const { beforeAll, afterAll, beforeEach, afterEach } = require('@jest/globals');
+const { sequelize } = require('../../models'); // Importa a instância do Sequelize
 
 // Mock do console para evitar logs durante os testes
-global.console = {
-  ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-};
+const originalConsole = global.console;
 
-// Configuração global do Jest
-jest.setTimeout(10000);
+beforeAll(() => {
+  // Suprimir logs durante os testes
+  global.console = {
+    ...originalConsole,
+    log: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  };
+});
 
-// Limpa todos os mocks após cada teste
-afterEach(() => {
+// Limpeza entre testes
+beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// Configuração para capturar warnings não tratados
-process.on('unhandledRejection', (reason, promise) => {
-  console.warn('Unhandled Rejection at:', promise, 'reason:', reason);
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+// Configurações de ambiente para testes
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = 'test_secret';
+process.env.REDIS_URL = 'redis://localhost:6379';
+process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db';
+
+// Hook que executa após todos os testes da suíte finalizarem.
+afterAll(async () => {
+  // Restaura o console para o seu estado original
+  global.console = originalConsole;
+  
+  // Fecha a conexão com o banco de dados para permitir que o Jest
+  // encerra o processo de forma limpa e sem avisos.
+  await sequelize.close();
 });
