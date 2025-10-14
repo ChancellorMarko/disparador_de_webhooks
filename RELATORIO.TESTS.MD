@@ -1,53 +1,39 @@
-Relatório de Cobertura de Testes Automatizados
-Data do Relatório: 14/10/2025
+# Relatório de Cobertura de Testes Automatizados
 
-Este documento resume a cobertura atual dos testes automatizados para o projeto disparador-webhooks-backend. O objetivo é fornecer visibilidade sobre os cenários verificados e garantir a qualidade e a estabilidade das funcionalidades implementadas.
+**Data do Relatório:** 14/10/2025
 
-Tabela de Cobertura por Suíte de Testes
-Suíte de Testes (Ficheiro)
+Este documento apresenta um panorama detalhado da cobertura dos testes automatizados do projeto **disparador-webhooks-backend**. O objetivo é oferecer transparência sobre os cenários verificados, reforçar o compromisso com a qualidade do software e orientar futuras melhorias.
 
-Tipo de Teste
+---
 
-Cobertura e Cenários Verificados
+## Tabela de Cobertura por Suíte de Testes
 
-validators.test.js
+| Suíte de Testes (Arquivo)          | Tipo de Teste | Cenários Verificados e Cobertura                                                                                   |
+|------------------------------------|---------------|--------------------------------------------------------------------------------------------------------------------|
+| **validators.test.js**             | Unitário      | - **CNPJ:** Validação e formatação (XX.XXX.XXX/XXXX-XX)<br>- **Email:** Formatos padrão<br>- **Telefone:** 10/11 dígitos<br>- **Data:** Validação, formatação DD/MM/YYYY e ajuste de fuso horário (UTC) |
+| **auth.test.js**                   | Middleware    | - **Token Válido:** Permite requisições autenticadas<br>- **Token Ausente:** Bloqueio sem autorização<br>- **Token Inválido:** Rejeição de tokens malformados, falsos ou expirados                 |
+| **protocolo.routes.test.js**       | Integração    | - **Validação de Entrada:** Rejeita consulta sem `start_date`<br>- **Regra de Negócio:** Intervalo máximo de 31 dias<br>- **Consulta Bem-Sucedida:** Status 200 e retorno de dados válidos          |
+| **reenvio.routes.test.js**         | Integração    | - **Criação Bem-Sucedida:** Processa solicitação válida e retorna status 201 Created, confirmando a criação do recurso                                     |
 
-Unitário
+---
 
-Validações e Formatações de Dados:
+## Resumo do Status
 
-- CNPJ: Confirma a lógica de validação e formatação (XX.XXX.XXX/XXXX-XX).
-- Email: Assegura a validação de formatos de email padrão.
-- Telefone: Verifica a lógica de validação e formatação para 10 e 11 dígitos.
-- Data: Confirma a validação de datas válidas e a formatação para DD/MM/YYYY, incluindo a correção para fusos horários (UTC).
+✅ **Todos os testes estão passando com sucesso.**  
+A cobertura atual contempla as funções utilitárias essenciais, a camada de autenticação e os principais fluxos das APIs de Protocolos e Reenvio.  
+Esse cenário reforça a confiabilidade do sistema e oferece base sólida para evoluções futuras.
 
-auth.test.js
+---
 
-Middleware
+## Recomendações para Expansão da Cobertura
 
-Camada de Segurança e Autenticação:
+- **Cobertura de Cenários Negativos:** Adicionar testes para casos de erro e exceções não mapeadas.
+- **Testes de Performance:** Avaliar tempo de resposta das rotas críticas.
+- **Testes de Segurança Avançados:** Explorar vulnerabilidades e validações adicionais.
+- **Testes End-to-End:** Simular fluxos completos de negócio para garantir integração entre módulos.
 
-- Token Válido: Garante que uma requisição com token JWT válido pode prosseguir.
-- Token Ausente: Bloqueia requisições sem o header de autorização.
-- Token Inválido: Rejeita requisições com tokens malformados, falsos ou expirados.
+---
 
-protocolo.routes.test.js
+## Conclusão
 
-Integração
-
-API de Consulta de Protocolos (GET /api/protocolos):
-
-- Validação de Entrada: Rejeita a consulta se o parâmetro obrigatório start_date não for fornecido.
-- Regra de Negócio: Impede consultas com intervalo de datas superior a 31 dias.
-- Consulta com Sucesso: Confirma que a rota retorna status 200 e um array de dados quando os parâmetros são válidos.
-
-reenvio.routes.test.js
-
-Integração
-
-API de Solicitação de Reenvio (POST /api/reenviar):
-
-- Criação com Sucesso: Verifica se a rota processa uma solicitação válida e retorna o status 201 Created, confirmando que o recurso foi criado no sistema.
-
-Resumo do Status
-✅ Todos os testes estão a passar com sucesso. A cobertura atual abrange funções utilitárias críticas, a camada de autenticação e os fluxos principais das APIs de Protocolos e Reenvio, garantindo a confiabilidade destas funcionalidades.
+A cobertura atual está adequada para garantir estabilidade dos principais componentes do sistema. Recomenda-se a ampliação gradual dos testes para cobrir cenários não contemplados e fortalecer ainda mais a qualidade do projeto.
