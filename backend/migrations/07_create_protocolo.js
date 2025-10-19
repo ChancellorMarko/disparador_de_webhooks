@@ -1,36 +1,89 @@
-exports.up = (knex) =>
-  knex.schema.createTable("protocolos", (table) => {
-    table.increments("id").primary()
-    table.uuid("protocolo").notNullable().unique().defaultTo(knex.raw("gen_random_uuid()"))
+'use strict';
 
-    table.integer("cedente_id").notNullable().unsigned()
-    table.foreign("cedente_id").references("id").inTable("cedentes").onDelete("CASCADE")
+module.exports = {
+  // A função precisa receber 'queryInterface' e 'Sequelize'
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('protocolos', {
+      id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      protocolo: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        unique: true,
+        defaultValue: Sequelize.UUIDV4,
+      },
+      cedente_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'cedentes', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      conta_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'contas', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      convenio_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'convenios', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      servico_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'servicos', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      software_house_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'software_houses', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'pendente',
+      },
+      tentativas: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      dados_requisicao: {
+        type: Sequelize.JSONB,
+        allowNull: true,
+      },
+      dados_resposta: {
+        type: Sequelize.JSONB,
+        allowNull: true,
+      },
+      erro_mensagem: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      processado_em: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+    });
+  },
 
-    table.integer("conta_id").notNullable().unsigned()
-    table.foreign("conta_id").references("id").inTable("contas").onDelete("CASCADE")
-
-    table.integer("convenio_id").notNullable().unsigned()
-    table.foreign("convenio_id").references("id").inTable("convenios").onDelete("CASCADE")
-
-    table.integer("servico_id").notNullable().unsigned()
-    table.foreign("servico_id").references("id").inTable("servicos").onDelete("CASCADE")
-
-    table.integer("software_house_id").notNullable().unsigned()
-    table.foreign("software_house_id").references("id").inTable("software_houses").onDelete("CASCADE")
-
-    table.string("status").notNullable().defaultTo("pendente")
-    table.integer("tentativas").notNullable().defaultTo(0)
-
-    table.jsonb("dados_requisicao")
-    table.jsonb("dados_resposta")
-    table.text("erro_mensagem")
-
-    table.timestamp("processado_em")
-    table.timestamps(true, true)
-
-    table.index(["cedente_id", "created_at"])
-    table.index(["status", "created_at"])
-    table.index("protocolo")
-  })
-
-exports.down = (knex) => knex.schema.dropTableIfExists("protocolos")
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('protocolos');
+  }
+};
