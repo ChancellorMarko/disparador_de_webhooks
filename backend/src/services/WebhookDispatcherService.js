@@ -1,16 +1,59 @@
 const axios = require('axios');
-const { WebhookReprocessado, Cedente, Conta } = require('../models'); // Verifique o caminho para seus models
+const { WebhookReprocessado, Cedente, Conta } = require('../models');
 
 class WebhookDispatcherService {
+  static _montarPayloadFinal(webhook) {
+    const { product, type } = webhook.data;
+
+    // Mapeia o 'type' da nossa API para os status das fotos
+    const situacaoMap = {
+      disponivel: { boleto: 'DISPONIVEL', pagamento: 'PENDING', pix: 'PENDING' },
+      cancelado: { boleto: 'BAIXADO', pagamento: 'REJECTED', pix: 'REJECTED' },
+      pago: { boleto: 'LIQUIDADO', pagamento: 'PAID', pix: 'PIX_PAID' }
+    };
+
+    // >>> A CORREÇÃO ESTÁ AQUI <<<
+    // Acessando o mapa na ordem correta: primeiro o 'type', depois o 'product'
+    const statusFinal = situacaoMap[type]?.[product] || 'UNKNOWN';
+
+    switch (product) {
+      case 'boleto':
+        return {
+          body: {
+            tipoWH: "notifica_liquidou",
+            dataHoraEnvio: new Date().toISOString(),
+            titulo: {
+              situacao: statusFinal, // Agora virá 'DISPONIVEL'
+              idIntegracao: `ID_${JSON.parse(webhook.servico_id).join(',')}`,
+              TituloNossoNumero: "456456",
+            },
+            CpfCnpjCedente: webhook.cedente.cnpj
+          }
+        };
+
+      // ... (os outros cases para 'pagamento' e 'pix' continuam iguais) ...
+      case 'pagamento':
+        return {
+          body: { status: statusFinal, /* ... */ }
+        };
+      case 'pix':
+        return {
+          body: { event: statusFinal, /* ... */ }
+        };
+
+      default:
+        return webhook.data;
+    }
+  }
+
+  // A função processarFila() continua exatamente a mesma
   static async processarFila() {
     console.log('Buscando webhooks pendentes para processar...');
 
-    // 1. Busca no banco todos os webhooks com status 'pendente'
     const webhooksPendentes = await WebhookReprocessado.findAll({
       where: { status: 'pendente' },
-      include: [{ // Inclui os dados do Cedente e das Contas para pegar a URL
-        model: Cedente,
-        as: 'cedente',
+      include: [{
+        model: Cedente, as: 'cedente',
         include: [{ model: Conta, as: 'contas' }]
       }]
     });
@@ -22,12 +65,9 @@ class WebhookDispatcherService {
 
     console.log(`Encontrados ${webhooksPendentes.length} webhooks para processar.`);
 
-    // 2. Faz um loop por cada webhook pendente
     for (const webhook of webhooksPendentes) {
       try {
-        // 3. Lógica para pegar a URL de notificação (a da Conta tem prioridade)
         let urlDeNotificacao;
-        // Lógica simplificada para pegar a config da primeira conta, se houver
         const configConta = webhook.cedente?.contas?.[0]?.configuracao_notificacao;
         const configCedente = webhook.cedente?.configuracao_notificacao;
 
@@ -40,20 +80,19 @@ class WebhookDispatcherService {
         if (!urlDeNotificacao) {
           throw new Error(`URL de notificação não configurada para o cedente ID ${webhook.cedente_id}`);
         }
+        
+        const payloadFinal = this._montarPayloadFinal(webhook);
 
         console.log(`Disparando webhook (Protocolo: ${webhook.id}) para a URL: ${urlDeNotificacao}`);
         
-        // 4. Usa o axios para enviar a notificação (os dados originais do reenvio)
-        await axios.post(urlDeNotificacao, webhook.data);
+        await axios.post(urlDeNotificacao, payloadFinal);
 
-        // 5. Se o envio deu certo, atualiza o status para 'enviado'
         webhook.status = 'enviado';
         await webhook.save();
         console.log(`Webhook (Protocolo: ${webhook.id}) enviado com sucesso.`);
 
       } catch (error) {
         console.error(`Falha ao enviar o webhook (Protocolo: ${webhook.id}):`, error.message);
-        // 6. Se deu erro, atualiza o status para 'falhou'
         webhook.status = 'falhou';
         await webhook.save();
       }
