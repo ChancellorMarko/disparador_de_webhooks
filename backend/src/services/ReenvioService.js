@@ -1,31 +1,24 @@
-const { WebhookReprocessado } = require("../models");
+const { WebhookReprocessado, Servico, Convenio, Conta } = require("../models");
 const { v4: uuidv4 } = require("uuid");
-const ServicoRepository = require("../repositories/ServicoRepository");
 const { Op } = require("sequelize");
 const { AppError } = require("../utils/errors");
 
 const situacaoMap = {
   boleto: { disponivel: "REGISTRADO", cancelado: "BAIXADO", pago: "LIQUIDADO" },
-  pagamento: { disponivel: "SCHEDULED_ACTIVE", cancelado: "CANCELLED", pago: "PAID" },
-  pix: { disponivel: "ACTIVE", cancelado: "REJECTED", pago: "LIQUIDATED" },
+  // ...
 };
 
 class ReenvioService {
   static async criarReenvio(reenvioData, cedente) {
     try {
-      const { product, id, kind, type } = reenvioData;
-
-      // >>> ADICIONADO PARA DEPURAÇÃO FINAL <<<
-      console.log('VALORES RECEBIDOS PARA VALIDAÇÃO:', { product, type });
-
-      const situacaoEsperada = situacaoMap[product][type];
-      
-      const idsIncorretos = await this.validarSituacaoDosServicos(id, situacaoEsperada);
-      if (idsIncorretos.length > 0) {
-        const errorMessage = `A situação do ${product} diverge. IDs incorretos: ${idsIncorretos.join(", ")}`;
-        throw new AppError(errorMessage, 422);
+      const { product, id: idsString, kind, type } = reenvioData;
+      const ids = idsString.map(id => parseInt(id, 10));
+      if (ids.some(isNaN)) {
+        throw new AppError("Parâmetro inválido. O array de IDs deve conter apenas números.", 400);
       }
 
+      await this.validarServicos(ids, product, type, cedente.id);
+      
       const protocolo = uuidv4();
       await WebhookReprocessado.create({
         id: protocolo,
@@ -34,34 +27,54 @@ class ReenvioService {
         cedente_id: cedente.id,
         kind,
         type,
-        servico_id: JSON.stringify(id),
+        servico_id: JSON.stringify(ids),
         protocolo,
       });
 
       return { protocolo };
-
     } catch (error) {
-      console.error("ERRO REAL CAPTURADO NO REENVIO SERVICE:", error);
+      if (error instanceof AppError) throw error;
+      console.error("ERRO INESPERADO NO REENVIO SERVICE:", error);
       throw new AppError("Não foi possível gerar a notificação. Tente novamente mais tarde.", 500);
     }
   }
 
-  static async validarSituacaoDosServicos(ids, situacaoEsperada) {
-    const servicosEncontrados = await ServicoRepository.findAll({
+  static async validarServicos(ids, product, type, cedenteId) {
+    const servicos = await Servico.findAll({
       where: { id: { [Op.in]: ids } },
-      attributes: ["id", "status"],
+      include: [{
+        model: Convenio, as: 'convenio', required: true,
+        include: [{
+          model: Conta, as: 'conta', required: true,
+          where: { cedente_id: cedenteId }
+        }]
+      }]
     });
 
-    const idsEncontrados = new Set(servicosEncontrados.map(s => s.id.toString()));
-    const idsIncorretos = ids.filter(id => !idsEncontrados.has(id.toString()));
+    if (servicos.length !== ids.length) {
+      const idsEncontrados = servicos.map(s => s.id);
+      const idsFaltantes = ids.filter(id => !idsEncontrados.includes(id));
+      throw new AppError(`Parâmetro inválido. IDs não encontrados ou não pertencem a você: ${idsFaltantes.join(", ")}`, 400);
+    }
+    
+    const situacaoEsperada = situacaoMap[product]?.[type];
+    if (!situacaoEsperada) {
+        throw new AppError(`O tipo '${type}' é inválido para o produto '${product}'.`, 400);
+    }
 
-    servicosEncontrados.forEach(servico => {
-      if (servico.status !== situacaoEsperada) {
-        idsIncorretos.push(servico.id);
+    for (const servico of servicos) {
+      // Validação do produto (ex: 'boleto')
+      if (servico.produto && servico.produto !== product) {
+          throw new AppError(`Parâmetro inválido. O serviço de ID ${servico.id} é do produto '${servico.produto}', mas a requisição é para '${product}'.`, 400);
       }
-    });
 
-    return [...new Set(idsIncorretos)];
+      // CORREÇÃO: Verificação de status/situação unificada e correta
+      if (servico.status !== situacaoEsperada) {
+        throw new AppError(`A situação do ${product} diverge do tipo solicitado. IDs incorretos: ${servico.id}`, 422);
+      }
+    }
+
+    return true;
   }
 }
 
