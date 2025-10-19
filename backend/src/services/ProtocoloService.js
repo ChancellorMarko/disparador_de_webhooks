@@ -1,63 +1,49 @@
-const {
-  ProtocoloRepository,
-  CedenteRepository,
-  ContaRepository,
-  ConvenioRepository,
-  ServicoRepository,
-  SoftwareHouseRepository,
-} = require("../repositories")
-const { ValidationError, NotFoundError } = require("../utils/errors")
+const { WebhookReprocessado } = require('../models');
+const { AppError } = require('../utils/errors');
+const { Op } = require('sequelize'); // Importe o Op para fazer buscas por período
 
 class ProtocoloService {
-  async create(data) {
-    const { cedente_id, conta_id, convenio_id, servico_id, software_house_id } = data
-
-    const cedente = await CedenteRepository.findById(cedente_id)
-    if (!cedente || cedente.status !== "ativo") throw new ValidationError("Cedente inválido ou inativo")
-
-    const conta = await ContaRepository.findById(conta_id)
-    if (!conta || conta.status !== "ativo" || conta.cedente_id !== cedente.id)
-      throw new ValidationError("Conta inválida, inativa ou não pertence ao cedente")
-
-    // Adicione validações similares para Convenio, Servico e SoftwareHouse...
-
-    const protocoloData = { ...data, status: "pendente", tentativas: 0 }
-    return await ProtocoloRepository.create(protocoloData)
-  }
-
-  async findById(id) {
-    const protocolo = await ProtocoloRepository.findById(id)
+  async findByUuid(uuid) {
+    const protocolo = await WebhookReprocessado.findByPk(uuid);
     if (!protocolo) {
-      throw new NotFoundError("Protocolo não encontrado")
+      throw new AppError("Protocolo não encontrado.", 400);
     }
-    return protocolo
+    return protocolo;
   }
 
-  async findAll(filters = {}) {
-    // Sua lógica de paginação e listagem aqui...
-    return await ProtocoloRepository.findAll(filters)
-  }
+  // NOVA FUNÇÃO IMPLEMENTADA
+  async findAll(filters) {
+    const { start_date, end_date } = filters;
 
-  async updateStatus(id, status, dados_resposta = null) {
-    const protocolo = await this.findById(id)
-    // Sua lógica de transição de status...
-    const updateData = { status }
-    if (dados_resposta) updateData.dados_resposta = dados_resposta
-    if (status === "erro") updateData.tentativas = protocolo.tentativas + 1
-
-    return await ProtocoloRepository.update(id, updateData)
-  }
-
-  async reprocess(id) {
-    const protocolo = await this.findById(id)
-    if (protocolo.status !== "erro") {
-      throw new ValidationError("Apenas protocolos com status 'erro' podem ser reprocessados")
+    // Validação 1: Filtros de data são obrigatórios
+    if (!start_date || !end_date) {
+      throw new AppError("Os filtros 'start_date' e 'end_date' são obrigatórios.", 400);
     }
-    if (protocolo.tentativas >= 3) {
-      throw new ValidationError("Protocolo excedeu o limite máximo de 3 tentativas")
+
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
+
+    // Validação 2: Intervalo de datas não pode ser maior que 31 dias
+    const diffTime = Math.abs(endDate - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+    if (diffDays > 31) {
+      throw new AppError("O intervalo entre as datas não pode ser maior que 31 dias.", 400);
     }
-    return await ProtocoloRepository.update(id, { status: "pendente" })
+
+    // Busca no banco de dados usando o período
+    const protocolos = await WebhookReprocessado.findAll({
+      where: {
+        // Busca registros cuja data de criação esteja ENTRE a data de início e a de fim
+        created_at: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      order: [['created_at', 'DESC']], // Ordena pelos mais recentes
+    });
+
+    return protocolos;
   }
 }
 
-module.exports = ProtocoloService
+module.exports = new ProtocoloService();
