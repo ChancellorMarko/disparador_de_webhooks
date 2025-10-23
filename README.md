@@ -16,7 +16,6 @@ Antes de rodar o projeto, certifique-se de ter instalado:
 
 ---
 
-
 ## Objetivos
 
 - Centralizar disparo de notificações webhooks.
