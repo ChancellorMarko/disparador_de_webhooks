@@ -19,7 +19,6 @@ class ValidationError extends AppError {
   }
 }
 
-// Exporta tanto o objeto quanto as classes individualmente para garantir compatibilidade
 module.exports = {
   AppError,
   NotFoundError,

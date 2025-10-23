@@ -5,7 +5,7 @@ const { NotFoundError, ValidationError } = require("../utils/errors");
 
 class CedenteService {
   async create(data, softwareHouseId) {
-    // >>> CONSOLE.LOG ADICIONADO PARA O TESTE <<<
+
     console.log('--- EXECUTANDO A NOVA VERSÃO CORRIGIDA DO CEDENTE SERVICE ---');
 
     const softwareHouse = await SoftwareHouseRepository.findById(softwareHouseId);

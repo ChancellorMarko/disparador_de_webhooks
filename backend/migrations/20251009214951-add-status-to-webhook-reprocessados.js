@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.addColumn('webhook_reprocessados', 'status', {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: 'pendente', // Novos registros serão 'pendentes' por padrão
+      defaultValue: 'pendente',
     });
   },
 

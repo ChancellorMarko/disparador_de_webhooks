@@ -30,8 +30,8 @@ class AuthController {
           throw new AppError('Esta Software House não está ativa.', 403);
       }
 
-      // 4. *** A CORREÇÃO DEFINITIVA ESTÁ AQUI ***
-      //      Cria o "payload": o objeto de dados que será armazenado dentro do token JWT.
+
+      // 4. Cria o "payload": o objeto de dados que será armazenado dentro do token JWT.
       const payload = {
         softwareHouseId: softwareHouse.id, // Incluímos o ID da Software House!
         cnpj: softwareHouse.cnpj,

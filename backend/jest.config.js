@@ -4,10 +4,10 @@ module.exports = {
   // Ambiente de teste
   testEnvironment: "node",
 
-  // ✅ CORRIGIDO: O Jest deve procurar por arquivos apenas dentro de 'src'.
+
   roots: ["<rootDir>/src"],
 
-  // ✅ MANTIDO: Este caminho agora está correto e consistente com o resto do arquivo.
+ 
   setupFilesAfterEnv: ["<rootDir>/src/tests/setup/testSetup.js"],
 
   // Adiciona 'src' como um diretório de módulos para imports limpos
@@ -21,13 +21,12 @@ module.exports = {
     "^config/(.*)$": "<rootDir>/src/config/$1",
   },
 
-  // ✅ CORRIGIDO: Padrão ajustado para encontrar testes dentro de 'src/tests'.
   testMatch: ["<rootDir>/src/tests/**/*.test.js", "<rootDir>/src/tests/**/*.spec.js"],
 
   // Cobertura de código (já está perfeito)
   collectCoverageFrom: [
     "src/**/*.js",
-    "!src/tests/**/*.js", // Ignora todos os arquivos dentro da pasta de testes
+    "!src/tests/**/*.js",
     "!**/node_modules/**",
   ],
   coverageDirectory: "coverage",

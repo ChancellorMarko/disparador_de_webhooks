@@ -8,7 +8,7 @@ class CedenteController {
    */
   async create(req, res, next) {
     try {
-      // CORREÇÃO: O ID da SoftwareHouse vem de `req.auth.softwareHouseId`.
+
       const softwareHouseId = req.auth.softwareHouseId;
 
       // Adicionamos uma verificação para garantir que o token continha o ID
@@ -34,7 +34,6 @@ class CedenteController {
    */
   async findAll(req, res, next) {
     try {
-      // CORREÇÃO: Usa o `req.auth.softwareHouseId` para filtrar os cedentes
       const softwareHouseId = req.auth.softwareHouseId;
 
       if (!softwareHouseId) {
@@ -54,8 +53,6 @@ class CedenteController {
     }
   }
 
-  // ... o resto dos seus métodos (findById, update, delete) continua igual ...
-  
   async findById(req, res, next) {
     try {
       const { id } = req.params;

@@ -1,4 +1,4 @@
-const { authenticateJWT } = require('../../../middlewares/auth'); // CORREÇÃO
+const { authenticateJWT } = require('../../../middlewares/auth');
 const jwt = require('jsonwebtoken');
 const { AppError } = require('../../../utils/errors');
 
@@ -9,7 +9,7 @@ describe('Auth Middleware', () => {
 
   beforeEach(() => {
     req = { headers: {} };
-    res = {}; // res não é usado, pois o middleware delega com next()
+    res = {}; 
     next = jest.fn();
     jest.clearAllMocks();
   });
@@ -27,7 +27,7 @@ describe('Auth Middleware', () => {
     // Assert
     expect(jwt.verify).toHaveBeenCalledWith(token, process.env.JWT_SECRET);
     expect(req.auth).toEqual(payload);
-    expect(next).toHaveBeenCalledWith(); // Chamado sem argumentos em caso de sucesso
+    expect(next).toHaveBeenCalledWith();
   });
 
   it('deve chamar next(error) se o header de autorização estiver ausente', () => {

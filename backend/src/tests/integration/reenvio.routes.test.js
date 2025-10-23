@@ -1,17 +1,13 @@
-// tests/integration/reenvio.routes.test.js
-// VERSÃO CORRIGIDA
-
 const request = require("supertest")
 const app = require("../../app")
 const jwt = require("jsonwebtoken")
 const ServicoRepository = require("../../repositories/ServicoRepository")
-const { SoftwareHouse, Cedente, WebhookReprocessado } = require("../../models") // Declaring the jest variable
+const { SoftwareHouse, Cedente, WebhookReprocessado } = require("../../models") 
 // Mock das dependências
 jest.mock("jsonwebtoken")
 jest.mock("../../repositories/ServicoRepository")
 
-// This allows models to load properly in models/index.js
-// We'll mock the methods directly in beforeEach instead
+
 
 describe("Rota de Reenvio - POST /api/reenviar", () => {
   let mockToken

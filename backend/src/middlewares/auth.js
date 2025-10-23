@@ -19,9 +19,6 @@ const authenticateJWT = (req, res, next) => {
     // Verifica o token de forma síncrona dentro do bloco try...catch
     const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
 
-    // CORREÇÃO APLICADA AQUI:
-    // Anexa os dados decodificados do token em `req.auth` em vez de `req.user`.
-    // Isso fará com que seu Service encontre as informações onde ele espera.
     req.auth = decodedPayload;
 
     // Se o token for válido, passa para o próximo middleware ou controller.
@@ -42,8 +39,6 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-// ... o restante do seu arquivo (requireUserType) pode continuar como está.
 module.exports = {
   authenticateJWT,
-  // ...
 };

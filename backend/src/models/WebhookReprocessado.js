@@ -57,8 +57,8 @@ module.exports = (sequelize) => {
             tableName: "webhook_reprocessados",
             underscored: true,
 
-            // >>> A CORREÇÃO ESTÁ AQUI <<<
-            timestamps: true, // Alterado de 'false' para 'true'
+
+            timestamps: true,
         },
     )
 

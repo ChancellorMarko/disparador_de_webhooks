@@ -68,7 +68,6 @@ class ReenvioService {
           throw new AppError(`Parâmetro inválido. O serviço de ID ${servico.id} é do produto '${servico.produto}', mas a requisição é para '${product}'.`, 400);
       }
 
-      // CORREÇÃO: Verificação de status/situação unificada e correta
       if (servico.status !== situacaoEsperada) {
         throw new AppError(`A situação do ${product} diverge do tipo solicitado. IDs incorretos: ${servico.id}`, 422);
       }

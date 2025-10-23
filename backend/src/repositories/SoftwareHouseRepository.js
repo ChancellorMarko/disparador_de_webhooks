@@ -47,7 +47,6 @@ class SoftwareHouseRepository {
           required: false,
         },
       ],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }

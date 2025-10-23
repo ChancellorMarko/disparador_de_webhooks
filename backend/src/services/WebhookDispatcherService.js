@@ -41,7 +41,7 @@ class WebhookDispatcherService {
             case 'pagamento':
                  body = {
                     status: statusFinal,
-                    uniqueId: "VFML6N", // Exemplo, substitua por dados reais se tiver
+                    uniqueId: "VFML6N",
                     createdAt: new Date().toISOString(),
                     occurrences: [],
                     accountHash: "igIFASIU" // Exemplo

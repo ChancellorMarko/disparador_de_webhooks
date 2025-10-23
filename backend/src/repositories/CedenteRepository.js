@@ -40,7 +40,6 @@ class CedenteRepository {
         { model: SoftwareHouse, as: "softwareHouse", required: false },
         { model: Conta, as: "contas", required: false },
       ],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
@@ -49,7 +48,6 @@ class CedenteRepository {
     return await Cedente.findAll({
       where: { softwarehouse_id: softwarehouseId },
       include: [{ model: Conta, as: "contas", required: false }],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }

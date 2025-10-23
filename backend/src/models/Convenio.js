@@ -32,8 +32,7 @@ module.exports = (sequelize) => {
             tableName: "convenios",
             underscored: true,
 
-            // >>> A CORREÇÃO ESTÁ AQUI <<<
-            timestamps: true, // Alterado de 'false' para 'true'
+            timestamps: true,
         },
     )
 

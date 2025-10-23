@@ -70,7 +70,6 @@ const startServer = async () => {
     await testConnection()
     await connectRedis()
 
-    // >>> ADICIONADO: Lógica que inicia o disparador de webhooks <<<
     console.log("🚀 Disparador de webhooks ativado. Verificando a fila periodicamente.")
     // Roda o worker a cada 5 minutos (300000 ms)
     setInterval(() => {

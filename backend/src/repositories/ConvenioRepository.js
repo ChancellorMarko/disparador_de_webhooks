@@ -33,7 +33,6 @@ class ConvenioRepository {
         { model: Conta, as: "conta", required: false },
         { model: Servico, as: "servicos", required: false },
       ],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
@@ -42,7 +41,6 @@ class ConvenioRepository {
     return await Convenio.findAll({
       where: { conta_id: contaId },
       include: [{ model: Servico, as: "servicos", required: false }],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }

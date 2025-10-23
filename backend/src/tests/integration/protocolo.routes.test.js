@@ -52,7 +52,6 @@ describe("Rota de Protocolos - GET /api/protocolos", () => {
     // **** LINHA DE DIAGNÓSTICO ****
     // Adicione esta linha para ver exatamente o que a API está retornando.
     console.log("CORPO DA RESPOSTA RECEBIDA:", JSON.stringify(response.body, null, 2));
-    // *******************************
 
     expect(response.body.success).toBe(true);
     

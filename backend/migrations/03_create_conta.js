@@ -8,7 +8,6 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      // ADICIONADO: Conforme a documentação
       data_criacao: {
         type: Sequelize.DATE,
         allowNull: false,
