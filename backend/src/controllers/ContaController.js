@@ -7,12 +7,18 @@ class ContaController {
    */
   async create(req, res, next) {
     try {
-      // O ID do cedente é obrigatório no corpo da requisição para criar uma conta
-      const { cedente_id } = req.body;
-      if (!cedente_id) {
+      // 1. Armazena o corpo inteiro da requisição
+      const dadosConta = req.body;
+
+      // 2. A validação do 'cedente_id' continua importante
+      if (!dadosConta.cedente_id) {
          return res.status(400).json({ success: false, message: 'O campo cedente_id é obrigatório.' });
       }
-      const novaConta = await ContaService.create(req.body, cedente_id);
+
+      //Passa o objeto 'dadosConta' completo para o serviço.
+      // O 'ContaService' agora receberá 'configuracao_notificacao' se ele existir no body.
+      const novaConta = await ContaService.create(dadosConta);
+
       res.status(201).json({
         success: true,
         message: "Conta criada com sucesso.",
