@@ -148,6 +148,100 @@ Checar `.env.example` para a lista completa. Principais:
 
 ---
 
+## 🚀 Instalação e Configuração
+## Objetivos
+
+- Centralizar disparo de notificações webhooks.
+- Garantir retries e registro de histórico.
+- Permitir configuração por conta/cedente (URL e headers).
+- Fornecer endpoints para envio manual, reenvio e consulta de histórico.
+
+---
+
+## Arquitetura e fluxos
+
+1. Eventos geram registros em `WebhookReprocessado` no banco com status `pendente`.
+2. `WebhookDispatcherService.processarFila()` (worker) busca webhooks pendentes e processa cada um:
+   - Obtém configuração (conta → cedente).
+   - Monta payload específico por produto (`boleto`, `pagamento`, `pix`).
+   - Envia para a URL configurada com headers apropriados.
+   - Marca como `enviado` ou `falhou` e registra erro.
+3. `WebhookService` gerencia envios manuais/automáticos, persiste webhooks, adiciona assinatura HMAC quando configurada e executa retry com backoff exponencial (até 3 tentativas).
+
+Observações:
+- O worker é executado usando `setInterval` a cada 5 minutos e é disparado no startup da aplicação.
+- Em ambientes com múltiplas instâncias, recomenda‑se migrar para uma fila robusta (Bull, RabbitMQ) para evitar processamento duplicado.
+
+---
+
+## Endpoints (resumo)
+
+As rotas de API ficam sob `/api` e requerem JWT (exceto as de autenticação).
+
+- POST /api/auth/login — Autenticação da Software House
+  - Body: { cnpj, senha }
+  - Retorna: accessToken (JWT) e dados da software house.
+
+- GET /api/auth/me — Obter dados da Software House (Bearer token)
+
+Webhooks:
+- POST /api/webhooks/enviar — Envia webhook manualmente
+  - Body (exemplo): { protocolo_id, evento, dados }
+  - Retorno: { success, message, data }
+
+- POST /api/webhooks/reenviar/:id — Reenvia webhook por id
+
+- GET /api/webhooks/historico/:protocolo_id — Histórico de webhooks por protocolo
+
+Reenvio em massa (fluxo de teste):
+- POST /api/reenviar — usado para fluxo de reenvio em massa; veja `README.md` raiz para checklist de testes.
+
+Entidades relacionadas (rotas usadas no fluxo): `/api/cedentes`, `/api/contas`, `/api/convenios`, `/api/servicos`.
+
+---
+
+## Payload e assinatura
+
+- O payload final é montado por `WebhookDispatcherService._montarPayloadFinal(...)` e possui a forma:
+
+```
+{
+  notifications: [
+    {
+      kind: "webhook",
+      method: "POST",
+      url: "...",
+      headers: "...",
+      body: { ... } // estrutura específica por produto
+    }
+  ]
+}
+```
+
+- Quando `webhook_secret` estiver configurado, o header `X-Webhook-Signature` (HMAC SHA-256) é adicionado ao envio sobre o JSON do body.
+
+---
+
+## Retry e tolerância a falhas
+
+- Retries implementados em `WebhookService.retry` com backoff exponencial: delay = 2^(tentativas) * 1000 ms.
+- Limite de tentativas: 3. Ao atingir o limite, o registro permanece em erro e, dependendo da lógica, a configuração de webhook da software house pode ser desativada.
+
+---
+
+## Variáveis de ambiente (principais)
+
+Checar `.env.example` para a lista completa. Principais:
+- PORT — porta da aplicação (padrão: 3000)
+- NODE_ENV — ambiente (development/production/test)
+- DATABASE_URL ou DB_HOST/DB_USER/DB_PASS/DB_NAME — configuração do Postgres
+- REDIS_URL ou REDIS_HOST/REDIS_PORT — Redis
+- JWT_SECRET — chave do JWT
+- RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS — rate limiting
+- ALLOWED_ORIGINS — origens permitidas para CORS
+
+---
+
 ## ⚙️ Como Rodar e Configurar
 
 Siga uma das opções abaixo para rodar o projeto.
