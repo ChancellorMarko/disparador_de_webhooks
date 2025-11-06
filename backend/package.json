@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Backend para sistema de disparo de webhooks com autenticação JWT e middlewares de validação",
   "main": "src/app.js",
-   "scripts": {
+  "scripts": {
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "db:migrate": "npx sequelize-cli db:migrate",
