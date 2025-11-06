@@ -3,10 +3,10 @@ require('dotenv').config();
 module.exports = {
   development: {
     username: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
+    password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'disparador_webhooks',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 55432,
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     logging: console.log,
     define: {
@@ -17,10 +17,10 @@ module.exports = {
   },
   test: {
     username: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
+    password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME_TEST || 'disparador_webhooks_test',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 55432,
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     logging: false,
     define: {
@@ -34,7 +34,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 55432,
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     logging: false,
     define: {

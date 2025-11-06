@@ -1,4 +1,5 @@
 const AuthenticationService = require('../services/AuthenticationService');
+const Joi = require('joi');
 
 /**
  * Middleware para validar headers obrigatórios
@@ -8,7 +9,6 @@ const validateRequiredHeaders = async (req, res, next) => {
   try {
     const { 'cnpj-sh': cnpjSh, 'token-sh': tokenSh } = req.headers;
 
-    // Verifica se os headers obrigatórios estão presentes
     if (!cnpjSh) {
       return res.status(400).json({
         success: false,
@@ -27,7 +27,6 @@ const validateRequiredHeaders = async (req, res, next) => {
       });
     }
 
-    // Valida o formato do CNPJ
     if (!isValidCNPJFormat(cnpjSh)) {
       return res.status(400).json({
         success: false,
@@ -37,7 +36,6 @@ const validateRequiredHeaders = async (req, res, next) => {
       });
     }
 
-    // Valida o formato do token SH
     if (!isValidTokenSHFormat(tokenSh)) {
       return res.status(400).json({
         success: false,
@@ -47,7 +45,6 @@ const validateRequiredHeaders = async (req, res, next) => {
       });
     }
 
-    // Verifica se a Software House existe e está ativa no banco
     const softwareHouse = await AuthenticationService.validateSoftwareHouseByToken(tokenSh);
     
     if (!softwareHouse) {
@@ -58,7 +55,6 @@ const validateRequiredHeaders = async (req, res, next) => {
       });
     }
 
-    // Verifica se o CNPJ do header corresponde ao CNPJ da Software House
     if (softwareHouse.cnpj !== cnpjSh) {
       return res.status(403).json({
         success: false,
@@ -67,7 +63,6 @@ const validateRequiredHeaders = async (req, res, next) => {
       });
     }
 
-    // Adiciona a Software House validada ao request para uso posterior
     req.softwareHouse = {
       id: softwareHouse.id,
       cnpj: softwareHouse.cnpj,
@@ -91,15 +86,12 @@ const validateRequiredHeaders = async (req, res, next) => {
 
 /**
  * Middleware para validar headers opcionais
- * Similar ao validateRequiredHeaders, mas não falha se os headers não estiverem presentes
  */
 const validateOptionalHeaders = async (req, res, next) => {
   try {
     const { 'cnpj-sh': cnpjSh, 'token-sh': tokenSh } = req.headers;
 
-    // Se ambos os headers estiverem presentes, valida-os
     if (cnpjSh && tokenSh) {
-      // Valida o formato do CNPJ
       if (!isValidCNPJFormat(cnpjSh)) {
         return res.status(400).json({
           success: false,
@@ -109,7 +101,6 @@ const validateOptionalHeaders = async (req, res, next) => {
         });
       }
 
-      // Valida o formato do token SH
       if (!isValidTokenSHFormat(tokenSh)) {
         return res.status(400).json({
           success: false,
@@ -119,7 +110,6 @@ const validateOptionalHeaders = async (req, res, next) => {
         });
       }
 
-      // Verifica se a Software House existe e está ativa
       const softwareHouse = await AuthenticationService.validateSoftwareHouseByToken(tokenSh);
       
       if (softwareHouse && softwareHouse.cnpj === cnpjSh) {
@@ -138,7 +128,6 @@ const validateOptionalHeaders = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Erro na validação opcional de headers:', error);
-    // Em caso de erro, continua sem validação
     next();
   }
 };
@@ -195,7 +184,6 @@ const validateTokenSHHeader = async (req, res, next) => {
       });
     }
 
-    // Verifica se a Software House existe e está ativa
     const softwareHouse = await AuthenticationService.validateSoftwareHouseByToken(tokenSh);
     
     if (!softwareHouse) {
@@ -229,22 +217,16 @@ const validateTokenSHHeader = async (req, res, next) => {
 
 /**
  * Valida o formato do CNPJ
- * @param {string} cnpj - CNPJ a ser validado
- * @returns {boolean} - true se o formato for válido
  */
 function isValidCNPJFormat(cnpj) {
-  // Regex para formato XX.XXX.XXX/XXXX-XX
   const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
   return cnpjRegex.test(cnpj);
 }
 
 /**
  * Valida o formato do token SH
- * @param {string} tokenSh - Token SH a ser validado
- * @returns {boolean} - true se o formato for válido
  */
 function isValidTokenSHFormat(tokenSh) {
-  // Token SH deve ter 32 caracteres alfanuméricos
   const tokenRegex = /^[A-Za-z0-9]{32}$/;
   return tokenRegex.test(tokenSh);
 }
@@ -256,7 +238,6 @@ const validateRateLimitHeaders = (req, res, next) => {
   const { 'x-rate-limit-key': rateLimitKey } = req.headers;
 
   if (rateLimitKey) {
-    // Adiciona a chave de rate limiting ao request
     req.rateLimitKey = rateLimitKey;
   }
 
@@ -272,11 +253,9 @@ const validateCorrelationHeaders = (req, res, next) => {
   if (correlationId) {
     req.correlationId = correlationId;
   } else {
-    // Gera um ID de correlação se não fornecido
     req.correlationId = generateCorrelationId();
   }
 
-  // Adiciona o ID de correlação ao response header
   res.setHeader('x-correlation-id', req.correlationId);
 
   next();
@@ -284,10 +263,56 @@ const validateCorrelationHeaders = (req, res, next) => {
 
 /**
  * Gera um ID de correlação único
- * @returns {string} - ID de correlação
  */
 function generateCorrelationId() {
   return `corr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Middleware para validar query de protocolos (start_date / end_date)
+ * - exige start_date quando end_date for fornecido
+ * - valida formato ISO
+ * - limita intervalo máximo a 31 dias
+ * Retorna { error: "mensagem" } com status 400 conforme os testes esperam
+ */
+const protocoloQuerySchema = Joi.object({
+  start_date: Joi.date().iso().when('end_date', {
+    is: Joi.exist(),
+    then: Joi.required(),
+    otherwise: Joi.optional()
+  }),
+  end_date: Joi.date().iso()
+});
+
+async function validateProtocolQuery(req, res, next) {
+  try {
+    // console.log para debug local se necessário
+    // console.log('validateProtocolQuery', req.query);
+
+    const { error, value } = protocoloQuerySchema.validate(req.query, { convert: true, abortEarly: false });
+    if (error) {
+      const message = error.details.map(d => d.message).join(', ');
+      return res.status(400).json({ error: message });
+    }
+
+    if (value.start_date && value.end_date) {
+      const start = new Date(value.start_date);
+      const end = new Date(value.end_date);
+      const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+      if (diffDays > 31) {
+        return res.status(400).json({ error: "O intervalo entre as datas não pode exceder 31 dias" });
+      }
+      if (diffDays < 0) {
+        return res.status(400).json({ error: "end_date deve ser maior ou igual a start_date" });
+      }
+    }
+
+    req.query = { ...req.query, ...value };
+    return next();
+  } catch (err) {
+    console.error('validateProtocolQuery error', err);
+    return res.status(500).json({ error: 'Erro interno na validação de query' });
+  }
 }
 
 module.exports = {
@@ -296,8 +321,6 @@ module.exports = {
   validateCNPJHeader,
   validateTokenSHHeader,
   validateRateLimitHeaders,
-  validateCorrelationHeaders
+  validateCorrelationHeaders,
+  validateProtocolQuery
 };
-
-
-
