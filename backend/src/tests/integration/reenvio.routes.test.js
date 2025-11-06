@@ -1,9 +1,17 @@
+// tests/integration/reenvio.routes.test.js
+// VERSÃO CORRIGIDA
+
 const request = require("supertest")
 const app = require("../../app")
 const jwt = require("jsonwebtoken")
-const { SoftwareHouse, Cedente, WebhookReprocessado, Servico, Convenio, Conta } = require("../../models")
-
+const ServicoRepository = require("../../repositories/ServicoRepository")
+const { SoftwareHouse, Cedente, WebhookReprocessado } = require("../../models") // Declaring the jest variable
+// Mock das dependências
 jest.mock("jsonwebtoken")
+jest.mock("../../repositories/ServicoRepository")
+
+// This allows models to load properly in models/index.js
+// We'll mock the methods directly in beforeEach instead
 
 describe("Rota de Reenvio - POST /api/reenviar", () => {
   let mockToken
@@ -14,17 +22,8 @@ describe("Rota de Reenvio - POST /api/reenviar", () => {
 
     jwt.verify.mockReturnValue({ softwareHouseId: 1 })
 
-    jest.spyOn(SoftwareHouse, "findOne").mockResolvedValue({
-      id: 1,
-      cnpj: "11222333000144",
-      status: "ativo",
-    })
-
-    jest.spyOn(Cedente, "findOne").mockResolvedValue({
-      id: 10,
-      softwarehouse_id: 1,
-      status: "ativo",
-    })
+    jest.spyOn(SoftwareHouse, "findOne").mockResolvedValue({ id: 1, cnpj: "11222333000144" })
+    jest.spyOn(Cedente, "findOne").mockResolvedValue({ id: 10, softwarehouse_id: 1 })
   })
 
   afterEach(() => {
@@ -32,36 +31,16 @@ describe("Rota de Reenvio - POST /api/reenviar", () => {
   })
 
   it("deve criar uma solicitação de reenvio com sucesso e retornar status 201", async () => {
-    jest.spyOn(Servico, "findAll").mockResolvedValue([
-      {
-        id: 1,
-        produto: "boleto",
-        status: "REGISTRADO",
-        convenio: {
-          conta: {
-            cedente_id: 10,
-          },
-        },
-      },
-      {
-        id: 2,
-        produto: "boleto",
-        status: "REGISTRADO",
-        convenio: {
-          conta: {
-            cedente_id: 10,
-          },
-        },
-      },
+    ServicoRepository.findAll.mockResolvedValue([
+      { id: "boleto1", status: "REGISTRADO" },
+      { id: "boleto2", status: "REGISTRADO" },
     ])
 
-    jest.spyOn(WebhookReprocessado, "create").mockResolvedValue({
-      protocolo: "mock-protocolo-uuid",
-    })
+    jest.spyOn(WebhookReprocessado, "create").mockResolvedValue({ protocolo: "mock-protocolo-uuid" })
 
     const requestBody = {
       product: "boleto",
-      id: ["1", "2"],
+      id: ["boleto1", "boleto2"],
       kind: "webhook",
       type: "disponivel",
     }
@@ -69,10 +48,10 @@ describe("Rota de Reenvio - POST /api/reenviar", () => {
     const response = await request(app)
       .post("/api/reenviar")
       .set("Authorization", `Bearer ${mockToken}`)
-      .set("x-api-cnpj-sh", "11222333000144")
-      .set("x-api-token-sh", "token-sh-valido")
-      .set("x-api-cnpj-cedente", "cnpj-cedente-valido")
-      .set("x-api-token-cedente", "token-cedente-valido")
+      .set("cnpj-sh", "11222333000144")
+      .set("token-sh", "token-sh-valido")
+      .set("cnpj-cedente", "cnpj-cedente-valido")
+      .set("token-cedente", "token-cedente-valido")
       .send(requestBody)
       .expect(201)
 
