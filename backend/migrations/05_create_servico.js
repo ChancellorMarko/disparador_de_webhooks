@@ -8,11 +8,10 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      // CORREÇÃO: Adicionando a coluna 'data_criacao' de volta
       data_criacao: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW, // Usa o horário atual do banco como padrão
+        defaultValue: Sequelize.NOW,
       },
       convenio_id: {
         type: Sequelize.INTEGER,

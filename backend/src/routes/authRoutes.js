@@ -12,7 +12,6 @@ router.post("/login", async (req, res, next) => {
     const { cnpj, senha } = req.body;
     const result = await AuthenticationService.authenticate(cnpj, senha);
 
-    // Pequena melhoria para padronizar a resposta
     res.status(200).json({
       success: true,
       message: "Login realizado com sucesso!",
@@ -27,11 +26,8 @@ router.post("/login", async (req, res, next) => {
  * @route   GET /api/auth/me
  * @desc    Retorna informações do usuário autenticado (incluindo o token de API)
  */
-// Esta rota é protegida pelo middleware que verifica o token JWT
 router.get("/me", authenticateJWT, async (req, res, next) => {
   try {
-    // CORREÇÃO: O ID vem de `req.auth.softwareHouseId`,
-    // conforme definimos no middleware e no serviço de autenticação.
     const userId = req.auth.softwareHouseId;
     
     const softwareHouseData = await AuthenticationService.getMe(userId);

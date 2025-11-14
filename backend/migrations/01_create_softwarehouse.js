@@ -8,7 +8,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      // ADICIONADO: Conforme a documentação
       data_criacao: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -19,7 +18,6 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      // ADICIONADOS: Campos que seu código precisa para funcionar
       razao_social: {
         type: Sequelize.STRING,
         allowNull: false,

@@ -51,9 +51,8 @@ module.exports = (sequelize) => {
     {
       tableName: "contas",
       underscored: true,
-      
-      // >>> A CORREÇÃO ESTÁ AQUI <<<
-      timestamps: true, // Alterado de 'false' para 'true'
+    
+      timestamps: true, 
     }
   )
 

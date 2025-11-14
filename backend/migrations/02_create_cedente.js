@@ -18,7 +18,6 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      // ADICIONADOS: Campos que seu código precisa
       razao_social: {
         type: Sequelize.STRING,
         allowNull: false,

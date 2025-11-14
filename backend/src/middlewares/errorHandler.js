@@ -22,7 +22,6 @@ const logger = winston.createLogger({
   ]
 });
 
-// Adiciona console logging em desenvolvimento
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
@@ -32,10 +31,7 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-/**
- * Middleware de tratamento de erros global
- * Captura todos os erros não tratados e os formata adequadamente
- */
+
 const errorHandler = (err, req, res, next) => {
   // Log do erro
   logger.error('Erro capturado pelo middleware global:', {

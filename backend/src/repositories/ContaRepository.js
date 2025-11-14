@@ -28,7 +28,6 @@ class ContaRepository {
         { model: Cedente, as: "cedente", required: false },
         { model: Convenio, as: "convenios", required: false },
       ],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
@@ -37,12 +36,9 @@ class ContaRepository {
     return await Conta.findAll({
       where: { cedente_id: cedenteId },
       include: [{ model: Convenio, as: "convenios", required: false }],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
-  
-  // ... (outros métodos findBy... também precisam da correção na ordenação)
   
   async update(id, data) {
     const conta = await Conta.findByPk(id);

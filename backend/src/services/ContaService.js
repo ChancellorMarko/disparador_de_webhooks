@@ -7,7 +7,7 @@ class ContaService {
    * Cria uma nova conta.
    * @param {object} data - Objeto contendo todos os dados da conta, incluindo cedente_id e opcionalmente configuracao_notificacao.
    */
-  async create(data) { // <-- CORREÇÃO AQUI: Recebe apenas 'data'
+  async create(data) { // Recebe apenas 'data'
     // 1. Extrai o cedenteId de dentro do objeto 'data'
     const cedenteId = data.cedente_id;
 
@@ -37,7 +37,7 @@ class ContaService {
 
     // 4. Monta o objeto final para salvar no banco
     const contaData = {
-      ...data, // Espalha todos os dados recebidos (incluindo configuracao_notificacao, se houver)
+      ...data, // Espalha todos os dados recebidos
       cedente_id: cedenteId, // Garante que o cedente_id está correto
       status: "ativo", // Define o status padrão
       // Se configuracao_notificacao não vier no 'data', define um padrão
@@ -50,8 +50,6 @@ class ContaService {
 
     return await ContaRepository.create(contaData);
   }
-
-  // --- Funções findById, findAll, update, delete permanecem inalteradas ---
 
   async findById(id) {
     const conta = await ContaRepository.findById(id);

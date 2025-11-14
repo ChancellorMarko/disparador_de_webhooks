@@ -4,8 +4,7 @@ const { AppError } = require("../utils/errors");
 class CacheService {
   constructor() {
     this.redisClient = redis.createClient({
-      // Coloque sua URL do Redis aqui se tiver
-      // url: process.env.REDIS_URL
+
     });
     this.redisClient.on('error', (err) => console.error('Redis Client Error:', err));
     this.connect();

@@ -22,7 +22,7 @@ class WebhookDispatcherService {
         const statusFinal = situacaoMap[type]?.[product] || 'UNKNOWN';
         let body = {};
 
-        // Monta o corpo (body) interno da notificação
+        // Monta o corpo interno da notificação
         switch (product) {
             case 'boleto':
                 body = {

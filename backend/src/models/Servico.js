@@ -26,7 +26,6 @@ module.exports = (sequelize) => {
       status: {
         type: DataTypes.STRING,
         allowNull: false,
-        // A CORREÇÃO ESTÁ AQUI: Permitindo os status da regra de negócio
         validate: {
           isIn: [["REGISTRADO", "LIQUIDADO", "BAIXADO", "ativo", "inativo"]],
         },

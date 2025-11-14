@@ -15,7 +15,6 @@ module.exports = {
       token: uuidv4().replace(/-/g, ""),
       status: 'ativo',
       
-      // LINHA ADICIONADA:
       data_criacao: new Date(),
 
       created_at: new Date(),

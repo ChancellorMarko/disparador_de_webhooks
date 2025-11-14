@@ -1,18 +1,18 @@
 const Joi = require("joi");
 
-// --- SCHEMAS BASE ---
+
 
 // Valida um ID numérico nos parâmetros da URL (ex: /cedentes/123)
 const idParamSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
 });
 
-// Valida um UUID nos parâmetros da URL (ex: /protocolos/uuid-aqui)
+// Valida um UUID nos parâmetros da URL
 const uuidParamSchema = Joi.object({
   uuid: Joi.string().uuid().required(),
 });
 
-// --- SCHEMAS DE ENTIDADES ---
+
 
 // -- SOFTWARE HOUSE --
 const softwareHouseCreateSchema = Joi.object({
