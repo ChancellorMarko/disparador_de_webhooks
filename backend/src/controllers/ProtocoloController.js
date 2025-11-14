@@ -16,14 +16,14 @@ class ProtocoloController {
 
       const protocolo = await ProtocoloService.findByUuid(uuid);
 
-      // 2. Corrigido: Tratamento de erro para protocolo não encontrado
+      // 2. Tratamento de erro para protocolo não encontrado
       if (!protocolo) {
         return res.status(400).json({ message: "Protocolo não encontrado." });
       }
       
       const response = { success: true, data: protocolo };
 
-      // 3. Corrigido: Cache condicional (só salva se o status for 'sent' ou 'enviado')
+      // 3. Cache condicional (só salva se o status for 'sent' ou 'enviado')
       if (protocolo.status === 'enviado') { // ou 'sent', dependendo do seu model
           // Salva no cache por 1 hora (3600 segundos)
           await redisClient.set(cacheKey, JSON.stringify(response), { EX: 3600 });
@@ -39,7 +39,7 @@ class ProtocoloController {
     try {
       const { start_date, end_date } = req.query;
 
-      // 1. Corrigido: Validação do intervalo de datas
+      // 1. Validação do intervalo de datas
       const startDate = new Date(start_date);
       const endDate = new Date(end_date);
       const diffTime = Math.abs(endDate - startDate);
@@ -60,7 +60,7 @@ class ProtocoloController {
       const protocolos = await ProtocoloService.findAll(req.query);
       const response = { success: true, data: protocolos };
 
-      // 3. Salva a resposta no cache por 1 dia (86400 segundos)
+      // 3. Salva a resposta no cache por 1 dia
       await redisClient.set(cacheKey, JSON.stringify(response), { EX: 86400 });
 
       res.status(200).json(response);

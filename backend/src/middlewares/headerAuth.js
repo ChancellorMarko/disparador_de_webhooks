@@ -26,7 +26,6 @@ class ServicoRepository {
     });
   }
 
-  // ... (outros métodos do repositório que também usam created_at)
   async findByConvenio(convenioId) {
     return await Servico.findAll({
         where: { convenio_id: convenioId },

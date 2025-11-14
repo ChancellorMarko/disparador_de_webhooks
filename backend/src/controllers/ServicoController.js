@@ -2,12 +2,11 @@ const ServicoService = require("../services/ServicoService");
 
 class ServicoController {
   /**
-   * @desc    Cria um novo Serviço
-   * @route   POST /api/servicos
+   * @desc    
+   * @route   
    */
   async create(req, res, next) {
     try {
-      // Para criar um serviço, o ID do convênio ao qual ele pertence é obrigatório
       const { convenio_id } = req.body;
       if (!convenio_id) {
         return res.status(400).json({ 
@@ -29,8 +28,8 @@ class ServicoController {
   }
 
   /**
-   * @desc    Lista todos os Serviços
-   * @route   GET /api/servicos
+   * @desc    
+   * @route   
    */
   async findAll(req, res, next) {
     try {
@@ -46,8 +45,8 @@ class ServicoController {
   }
 
   /**
-   * @desc    Busca um Serviço específico por ID
-   * @route   GET /api/servicos/:id
+   * @desc    
+   * @route   
    */
   async findById(req, res, next) {
     try {
@@ -63,8 +62,8 @@ class ServicoController {
   }
 
   /**
-   * @desc    Atualiza um Serviço
-   * @route   PUT /api/servicos/:id
+   * @desc    
+   * @route   
    */
   async update(req, res, next) {
     try {
@@ -81,8 +80,8 @@ class ServicoController {
   }
 
   /**
-   * @desc    Deleta um Serviço
-   * @route   DELETE /api/servicos/:id
+   * @desc    
+   * @route   
    */
   async delete(req, res, next) {
     try {

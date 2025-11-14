@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = {
-  // A função precisa receber 'queryInterface' e 'Sequelize'
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('protocolos', {
       id: {

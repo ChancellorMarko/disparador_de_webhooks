@@ -4,7 +4,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn('servicos', 'produto', {
       type: Sequelize.STRING,
-      allowNull: true, // Começa como nulo para não quebrar dados existentes
+      allowNull: true,
     });
   },
 

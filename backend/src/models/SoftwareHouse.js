@@ -49,8 +49,7 @@ module.exports = (sequelize) => {
     {
       tableName: "software_houses",
       underscored: true,
-      // AVISO: Removido qualquer defaultScope que pudesse estar aqui
-      timestamps: true, // Garante que o Sequelize gerencie created_at e updated_at
+      timestamps: true,
     }
   );
 

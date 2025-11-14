@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const SoftwareHouse = require('../models/SoftwareHouse'); // <-- Verifique se o caminho para seu model está correto
-const { AppError } = require('../utils/errors');       // <-- Verifique se o caminho para seus utils está correto
+const SoftwareHouse = require('../models/SoftwareHouse'); 
+const { AppError } = require('../utils/errors');      
 
 class AuthController {
   /**
@@ -9,10 +9,9 @@ class AuthController {
    */
   async login(req, res, next) {
     try {
-      // 1. Pega as credenciais do corpo da requisição
-      //    Renomeamos 'token' para 'staticToken' para não confundir com o token JWT
       const { cnpj, token: staticToken } = req.body;
 
+      // 1. Valida se o CNPJ e o token estático foram fornecidos
       if (!cnpj || !staticToken) {
         throw new AppError('CNPJ e Token são obrigatórios.', 400);
       }
@@ -30,16 +29,15 @@ class AuthController {
           throw new AppError('Esta Software House não está ativa.', 403);
       }
 
-      // 4. *** A CORREÇÃO DEFINITIVA ESTÁ AQUI ***
-      //      Cria o "payload": o objeto de dados que será armazenado dentro do token JWT.
+      //4. Cria o "payload": o objeto de dados que será armazenado dentro do token JWT.
       const payload = {
-        softwareHouseId: softwareHouse.id, // Incluímos o ID da Software House!
+        softwareHouseId: softwareHouse.id,
         cnpj: softwareHouse.cnpj,
       };
 
       // 5. Gera o token JWT usando o payload, a chave secreta e uma data de expiração
       const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: '1d', // O token será válido por 1 dia
+        expiresIn: '1d',
       });
 
       // 6. Retorna o token JWT para o cliente, que deverá usá-lo nas próximas requisições

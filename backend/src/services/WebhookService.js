@@ -45,7 +45,7 @@ class WebhookService {
       return;
     }
 
-    const delay = Math.pow(2, webhook.tentativas) * 1000; // Backoff exponencial
+    const delay = Math.pow(2, webhook.tentativas) * 1000;
     setTimeout(async () => {
         try {
             const softwareHouse = await SoftwareHouseRepository.findById(webhook.software_house_id);

@@ -9,7 +9,7 @@ describe('Auth Middleware', () => {
 
   beforeEach(() => {
     req = { headers: {} };
-    res = {}; // res não é usado, pois o middleware delega com next()
+    res = {};
     next = jest.fn();
     jest.clearAllMocks();
   });

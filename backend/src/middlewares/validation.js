@@ -286,8 +286,6 @@ const protocoloQuerySchema = Joi.object({
 
 async function validateProtocolQuery(req, res, next) {
   try {
-    // console.log para debug local se necessário
-    // console.log('validateProtocolQuery', req.query);
 
     const { error, value } = protocoloQuerySchema.validate(req.query, { convert: true, abortEarly: false });
     if (error) {

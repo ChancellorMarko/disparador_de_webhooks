@@ -14,15 +14,12 @@ fs.readdirSync(__dirname)
       const modelPath = path.join(__dirname, file)
       const modelDefiner = require(modelPath)
 
-      // Check if the export is a function before calling it
       if (typeof modelDefiner !== "function") {
         console.warn(`⚠️  Skipping ${file}: not a valid model definer function`)
         return
       }
 
       const model = modelDefiner(sequelize)
-
-      // Validate that the model has a name
       if (!model || !model.name) {
         console.warn(`⚠️  Skipping ${file}: model has no name`)
         return

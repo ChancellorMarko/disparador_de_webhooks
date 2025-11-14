@@ -20,7 +20,6 @@ class ServicoRepository {
     return await Servico.findAll({
       where,
       include: [{ model: Convenio, as: "convenio", required: false }],
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
@@ -28,7 +27,6 @@ class ServicoRepository {
   async findByConvenio(convenioId) {
     return await Servico.findAll({
       where: { convenio_id: convenioId },
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }
@@ -39,7 +37,6 @@ class ServicoRepository {
         convenio_id: convenioId,
         status: "ativo",
       },
-      // CORRIGIDO: Ordenando pelo campo correto 'created_at'
       order: [["created_at", "DESC"]],
     });
   }

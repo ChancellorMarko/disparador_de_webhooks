@@ -2,8 +2,8 @@ const WebhookService = require("../services/WebhookService");
 
 class WebhookController {
   /**
-   * @desc    Envia um webhook manualmente
-   * @route   POST /api/webhooks/enviar
+   * @desc    
+   * @route   
    */
   async enviar(req, res, next) {
     try {
@@ -23,8 +23,8 @@ class WebhookController {
   }
 
   /**
-   * @desc    Reenvia um webhook que falhou
-   * @route   POST /api/webhooks/reenviar/:id
+   * @desc    
+   * @route   
    */
   async reenviar(req, res, next) {
     try {
@@ -44,8 +44,8 @@ class WebhookController {
   }
 
   /**
-   * @desc    Lista o histórico de webhooks de um protocolo
-   * @route   GET /api/webhooks/historico/:protocolo_id
+   * @desc    
+   * @route   
    */
   async obterHistorico(req, res, next) {
     try {

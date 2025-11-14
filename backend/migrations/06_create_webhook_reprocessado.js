@@ -11,7 +11,6 @@ module.exports = {
         type: Sequelize.JSONB,
         allowNull: false,
       },
-      // ADICIONADO: Conforme a documentação
       data_criacao: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -36,7 +35,7 @@ module.exports = {
         allowNull: false,
       },
       servico_id: {
-        type: Sequelize.TEXT, // Armazena um array de IDs como string
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       protocolo: {

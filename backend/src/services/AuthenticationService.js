@@ -18,8 +18,6 @@ class AuthenticationService {
       throw new ValidationError("Usuário não encontrado ou credenciais inválidas.", 401);
     }
 
-    // ### CORREÇÃO DEFINITIVA AQUI ###
-    // Renomeamos 'id' para 'softwareHouseId' para ser consistente com o resto da aplicação.
     const payload = {
       softwareHouseId: softwareHouse.id,
       cnpj: softwareHouse.cnpj,

@@ -12,7 +12,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      // ADICIONADO: Conforme a documentação
       data_criacao: {
         type: Sequelize.DATE,
         allowNull: false,

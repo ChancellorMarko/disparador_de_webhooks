@@ -2,8 +2,8 @@ const ConvenioService = require("../services/ConvenioService");
 
 class ConvenioController {
   /**
-   * @desc    Cria um novo Convênio
-   * @route   POST /api/convenios
+   * @desc    
+   * @route   
    */
   async create(req, res, next) {
     try {
@@ -29,8 +29,8 @@ class ConvenioController {
   }
 
   /**
-   * @desc    Lista todos os Convênios
-   * @route   GET /api/convenios
+   * @desc    
+   * @route  
    */
   async findAll(req, res, next) {
     try {
@@ -46,8 +46,8 @@ class ConvenioController {
   }
 
   /**
-   * @desc    Busca um Convênio específico por ID
-   * @route   GET /api/convenios/:id
+   * @desc    
+   * @route   
    */
   async findById(req, res, next) {
     try {
@@ -63,8 +63,8 @@ class ConvenioController {
   }
 
   /**
-   * @desc    Atualiza um Convênio
-   * @route   PUT /api/convenios/:id
+   * @desc    
+   * @route   
    */
   async update(req, res, next) {
     try {
@@ -81,8 +81,8 @@ class ConvenioController {
   }
 
   /**
-   * @desc    Deleta um Convênio
-   * @route   DELETE /api/convenios/:id
+   * @desc    
+   * @route   
    */
   async delete(req, res, next) {
     try {

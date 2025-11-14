@@ -11,7 +11,6 @@ class ProtocoloService {
     return protocolo;
   }
 
-  // NOVA FUNÇÃO IMPLEMENTADA
   async findAll(filters) {
     const { start_date, end_date } = filters;
 
