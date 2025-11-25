@@ -7,16 +7,14 @@ class ContaService {
    * Cria uma nova conta.
    * @param {object} data - Objeto contendo todos os dados da conta, incluindo cedente_id e opcionalmente configuracao_notificacao.
    */
-  async create(data) { // Recebe apenas 'data'
+  async create(data) {
     // 1. Extrai o cedenteId de dentro do objeto 'data'
     const cedenteId = data.cedente_id;
 
-    // 2. Validação para garantir que cedenteId foi fornecido dentro de 'data'
     if (!cedenteId) {
         throw new ValidationError("O campo cedente_id é obrigatório.");
     }
 
-    // 3. O restante das validações continua igual, usando o 'cedenteId' extraído
     const cedente = await CedenteRepository.findById(cedenteId);
     if (!cedente) {
       throw new NotFoundError("Cedente não encontrado");
@@ -25,7 +23,9 @@ class ContaService {
       throw new ValidationError("Cedente inativo");
     }
 
-    const produtosValidos = ["boleto", "pix", "ted", "cobranca_escritural"];
+
+    const produtosValidos = ["boleto", "pix", "pagamento"]; 
+    
     if (!produtosValidos.includes(data.produto)) {
       throw new ValidationError(`Produto inválido. Valores aceitos: ${produtosValidos.join(", ")}`);
     }
@@ -35,12 +35,10 @@ class ContaService {
       throw new ValidationError("Já existe uma conta com este produto e banco para este cedente", 409);
     }
 
-    // 4. Monta o objeto final para salvar no banco
     const contaData = {
-      ...data, // Espalha todos os dados recebidos
-      cedente_id: cedenteId, // Garante que o cedente_id está correto
-      status: "ativo", // Define o status padrão
-      // Se configuracao_notificacao não vier no 'data', define um padrão
+      ...data,
+      cedente_id: cedenteId,
+      status: "ativo",
       configuracao_notificacao: data.configuracao_notificacao || {
         url: null, email: null, tipos: {}, cancelado: true, pago: true,
         disponivel: true, header: false, ativado: false, header_campo: "",
@@ -51,6 +49,7 @@ class ContaService {
     return await ContaRepository.create(contaData);
   }
 
+  // ... (restante das funções iguais) ...
   async findById(id) {
     const conta = await ContaRepository.findById(id);
     if (!conta) {

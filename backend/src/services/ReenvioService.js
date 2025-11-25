@@ -4,8 +4,21 @@ const { Op } = require("sequelize");
 const { AppError } = require("../utils/errors");
 
 const situacaoMap = {
-  boleto: { disponivel: "REGISTRADO", cancelado: "BAIXADO", pago: "LIQUIDADO" },
-  // ...
+  boleto: { 
+    disponivel: "REGISTRADO", 
+    cancelado: "BAIXADO", 
+    pago: "LIQUIDADO" 
+  },
+  pagamento: { 
+    disponivel: "SCHEDULED_ACTIVE", 
+    cancelado: "CANCELLED", 
+    pago: "PAID" 
+  },
+  pix: { 
+    disponivel: "ACTIVE", 
+    cancelado: "REJECTED", 
+    pago: "LIQUIDATED" 
+  }
 };
 
 class ReenvioService {
@@ -68,7 +81,7 @@ class ReenvioService {
           throw new AppError(`Parâmetro inválido. O serviço de ID ${servico.id} é do produto '${servico.produto}', mas a requisição é para '${product}'.`, 400);
       }
 
-      // CORREÇÃO: Verificação de status/situação unificada e correta
+      
       if (servico.status !== situacaoEsperada) {
         throw new AppError(`A situação do ${product} diverge do tipo solicitado. IDs incorretos: ${servico.id}`, 422);
       }
